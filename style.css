@@ -1,0 +1,93 @@
+
+/* Website ka background color thora halka rakhne ke liye */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar ka rang tabdeel karne ke liye (agar aap blue ki jagah dark green chahte hain jo social welfare ko suit kare) */
+.navbar {
+    background-color: #28a745 !important; /* Green color jo charity ko represent karta hai */
+}
+
+/* Card ko thora utha hua dikhane ke liye (Shadow effect) */
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Mouse le jane par card thora upar uthega */
+}
+
+/* Buttons ka design */
+.btn-primary {
+    background-color: #28a745;
+    border: none;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+}
+
+/* Heading ka style */
+h3 {
+    color: #333;
+    font-weight: 700;
+}
+
+/* Logo Hover Animation */
+.logo-hover {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.logo-hover:hover {
+    transform: scale(1.1) rotate(5deg); /* Halka sa bara aur tilt hoga */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6); /* Safed glow effect */
+}
+
+/* Text Hover Effect */
+.brand-text {
+    transition: color 0.3s ease;
+}
+
+.navbar-brand:hover .brand-text {
+    color: #f8f9fa; /* Hover par text ka rang thora bright ho jayega */
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.2);
+}
+/* Logo Hover Effect */
+.logo-hover {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.logo-hover:hover {
+    transform: scale(1.2) rotate(10deg); /* Logo thora bara aur ghoome ga */
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.9); /* Glow effect */
+}
+
+/* Brand Text Effect */
+.brand-text {
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.navbar-brand:hover .brand-text {
+    color: #fff;
+    text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.4);
+    transform: translateX(3px); /* Hover par text halka sa right move hoga */
+}
+
+/* Logout Button Smooth Hover */
+.btn-outline-light {
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-outline-light:hover {
+    background-color: #dc3545 !important; /* Logout par red color ka hint */
+    border-color: #dc3545 !important;
+    transform: translateY(-2px); /* Button halka sa upar uthega */
+}
