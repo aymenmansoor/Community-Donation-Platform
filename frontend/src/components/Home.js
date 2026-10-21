@@ -15,8 +15,9 @@ function Home({ user }) {
       </div>
 
       <h1 className="display-3 fw-bold text-success mb-3">
-        Welcome, {user?.fullName || 'Shahbaz'}!
+        Welcome, {user?.fullName || 'neighbour'}!
       </h1>
+      <p className="lead text-success mb-2">Share kindness. Give items a new beginning.</p>
       <p className="lead text-muted mb-5 fs-4">
         You are logged in as a <strong>{userRole}</strong>.
       </p>

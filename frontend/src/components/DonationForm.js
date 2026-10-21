@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from '../api';
 
 function DonationForm({ onPostSuccess }) {
@@ -7,6 +7,22 @@ function DonationForm({ onPostSuccess }) {
   const [contact, setContact] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState('');
+  const fileInput = useRef(null);
+  const [imageError, setImageError] = useState('');
+  useEffect(() => {
+    if (!image) { setPreview(''); return; }
+    const url = URL.createObjectURL(image); setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [image]);
+  const chooseImage = event => {
+    const file = event.target.files[0];
+    setImageError('');
+    if (file && (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024)) {
+      setImage(null); event.target.value = ''; setImageError('Choose a JPEG, PNG or WebP image up to 5 MiB.'); return;
+    }
+    setImage(file || null);
+  };
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -25,6 +41,8 @@ function DonationForm({ onPostSuccess }) {
       await axios.post('/api/donate', formData);
       alert("Your donation has been posted.");
 
+      setImage(null);
+      if (fileInput.current) fileInput.current.value = '';
       setItemName('');
       setContact('');
       setDescription('');
@@ -36,6 +54,7 @@ function DonationForm({ onPostSuccess }) {
 
   return (
     <div className="card shadow-sm border-0 p-4 rounded-4 text-start">
+      <h1 className="h3 text-success mb-4 fw-bold">Give an item a new beginning</h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label htmlFor="donationform-0" className="form-label fw-bold">Item Name</label>
@@ -68,9 +87,11 @@ function DonationForm({ onPostSuccess }) {
 
         <div className="mb-3">
           <label htmlFor="donationform-3" className="form-label fw-bold">Item Image</label>
-          <input id="donationform-3" type="file" accept="image/png,image/jpeg,image/webp" className="form-control" onChange={(e) => setImage(e.target.files[0])} />
+          <input id="donationform-3" type="file" accept="image/png,image/jpeg,image/webp" className="form-control" ref={fileInput} onChange={chooseImage} />
         </div>
 
+        {imageError && <p role="alert" className="text-danger">{imageError}</p>}
+        {preview && <img src={preview} alt="Selected donation photograph" className="img-fluid rounded-4 mb-3" style={{ maxHeight: 240 }} />}
         <div className="mb-3">
           <label htmlFor="donationform-4" className="form-label fw-bold">Description</label>
           <textarea id="donationform-4"

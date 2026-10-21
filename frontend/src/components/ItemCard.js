@@ -20,7 +20,7 @@ function ItemCard({ title, category, description, contact, image, id, onDeleteSu
       <div className="card h-100 shadow-sm border-0 transition-hover" style={{ borderRadius: '20px', overflow: 'hidden' }}>
         <div className="d-flex justify-content-center align-items-center bg-light" style={{ height: '220px' }}>
           <img
-            src={imageUrl(image)}
+            src={imageUrl(image)} loading="lazy" width="600" height="400" onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/donation-fallback.svg'; }}
             alt={title}
             style={{ width: '100%', height: '100%', objectFit: image ? 'cover' : 'contain', padding: image ? '0' : '30px' }}
           />
@@ -57,7 +57,7 @@ function ItemCard({ title, category, description, contact, image, id, onDeleteSu
               <div className="modal-body p-4">
                 <div className="text-center mb-4">
                    <img
-                    src={imageUrl(image)}
+                    src={imageUrl(image)} loading="lazy" width="600" height="400" onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/donation-fallback.svg'; }}
                     alt={title}
                     className="rounded-4 shadow-sm"
                     style={{ maxHeight: '250px', width: '100%', objectFit: 'cover' }}

@@ -1,75 +1,14 @@
-import React from 'react';
-
-function About() {
-  return (
-    <div className="container mt-5">
-      {/* About Us Section */}
-      <section className="about-section text-center mb-5 p-5 bg-light rounded-4 shadow-sm">
-        <h2 className="display-5 fw-bold text-success mb-4">About Our Mission</h2>
-        <p className="lead text-muted mx-auto" style={{ maxWidth: '800px' }}>
-          Welcome to <strong>Community Help</strong>. Our platform is dedicated to bridging the gap 
-          between those who have resources and those who need them. We believe that 
-          a small act of kindness—like donating a book, clothes, or toys—can make a 
-          massive difference in someone's life.
-        </p>
-        <div className="row mt-5">
-          <div className="col-md-4">
-            <div className="p-3">
-              <i className="bi bi-heart-fill text-danger fs-1"></i>
-              <h4 className="mt-3 fw-bold">Pure Intent</h4>
-              <p className="text-muted">Directly helping the community without any middlemen.</p>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="p-3">
-              <i className="bi bi-shield-check text-primary fs-1"></i>
-              <h4 className="mt-3 fw-bold">Verified Donors</h4>
-              <p className="text-muted">A secure platform where users can connect safely.</p>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="p-3">
-              <i className="bi bi-people-fill text-success fs-1"></i>
-              <h4 className="mt-3 fw-bold">Impactful</h4>
-              <p className="text-muted">Every item donated is a step towards a better society.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Us Section */}
-      <section className="contact-section mb-5">
-        <div className="row justify-content-center">
-          <div className="col-md-6">
-            <div className="card border-0 shadow-lg p-4 rounded-4">
-              <h3 className="fw-bold text-success text-center mb-4">Contact Us</h3>
-              <form>
-                <div className="mb-3">
-                  <label className="form-label fw-bold">Email Address</label>
-                  <input type="email" className="form-control" placeholder="name@example.com" />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label fw-bold">Message</label>
-                  <textarea className="form-control" rows="4" placeholder="How can we help you?"></textarea>
-                </div>
-                <button type="button" className="btn btn-success w-100 fw-bold py-2 shadow-sm" onClick={() => alert("Thank you! We will get back to you soon.")}>
-                  Send Message
-                </button>
-              </form>
-              <div className="text-center mt-4">
-                <p className="text-muted">Or reach us at:</p>
-                <div className="d-flex justify-content-center gap-3 fs-4 text-success">
-                  <i className="bi bi-envelope-at"></i>
-                  <i className="bi bi-telephone"></i>
-                  <i className="bi bi-geo-alt"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+export default function About() {
+  return <section className="text-center my-5 p-4 p-md-5 bg-light rounded-4 shadow-sm">
+    <p className="fw-bold text-success">Our community, in bloom</p>
+    <h1 className="display-5 fw-bold text-success">About ShareBloom</h1>
+    <p className="lead text-muted mx-auto mt-4" style={{maxWidth:800}}>Share kindness. Give items a new beginning.</p>
+    <p className="mx-auto text-muted" style={{maxWidth:800}}>ShareBloom connects people with useful items to people who can give them a new home. From textbooks for a new term to everyday household essentials, a thoughtful donation can make someone’s next step a little easier.</p>
+    <div className="row g-4 mt-3">{[
+      ['Give thoughtfully','Describe your item honestly, add a clear photograph and share only the contact details you are comfortable making visible.'],
+      ['Request with care','Explain how an item would help you. Follow each request from pending to the donor’s decision.'],
+      ['A supported community','Administrators review listings and account activity. Moderation supports the community; it does not verify every person or item.']
+    ].map(([title,text]) => <div className="col-md-4" key={title}><div className="card rounded-4 border-0 h-100 p-4"><h2 className="h5 text-success">{title}</h2><p className="text-muted mb-0">{text}</p></div></div>)}</div>
+    <p className="small text-muted mt-4 mb-0">The portfolio sample accounts and listings are fictional. Arrange handovers carefully and never share sensitive personal information.</p>
+  </section>;
 }
-
-export default About;

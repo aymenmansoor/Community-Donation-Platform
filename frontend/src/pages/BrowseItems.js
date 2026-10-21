@@ -75,7 +75,7 @@ function BrowseItems() {
             <div className="card h-100 shadow border-0 rounded-4 overflow-hidden">
               <div style={{ height: '250px', overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
                 <img
-                  src={imageUrl(item.image)}
+                  src={imageUrl(item.image)} loading="lazy" width="600" height="400"
                   className="card-img-top"
                   alt={item.itemName}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
