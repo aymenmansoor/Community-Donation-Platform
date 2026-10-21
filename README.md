@@ -156,7 +156,7 @@ For fictional sample data, browser checks and private first-admin provisioning, 
 
 ## Verification and documentation
 
-The last application verification passed **18 backend tests, 10 frontend tests, nine real browser scenarios**, and the production build.
+The application has been validated through **18 backend tests, 10 frontend tests, nine browser scenarios**, and a successful production build.
 
 ```bash
 npm test --prefix backend
@@ -164,10 +164,10 @@ npm test --prefix frontend
 npm run build --prefix frontend
 ```
 
-Backend tests require the local MongoDB instance. Detailed checks and limitations are recorded in [validation](docs/VALIDATION.md).
+Backend integration tests require a local MongoDB instance.
 
-- [Local testing and demo fixtures](docs/TESTING.md)
+### Technical documentation
+
+- [Testing and demo setup](docs/TESTING.md)
 - [Security and access control](docs/SECURITY.md)
-- [Project handover](docs/HANDOVER.md)
-
-ShareBloom is complete as a GitHub portfolio project. Public deployment is not planned.
+- [Validation results](docs/VALIDATION.md)
