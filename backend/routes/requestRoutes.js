@@ -18,13 +18,14 @@ router.get('/donor/:email', async (req, res) => {
   if (req.user.role !== 'Donor' || req.user.email !== req.params.email) return res.status(403).json({ message: 'Access denied' });
   res.json(await Request.find(await visible(req)).populate('itemId'));
 });
-router.post('/', async (req, res) => {
+router.post('/', require('../middleware/security').requestLimit, async (req, res) => {
   if (req.user.role !== 'Requester') return res.status(403).json({ message: 'Requester account required' });
   if (!validId(req.body.itemId) || typeof req.body.reason !== 'string' || !req.body.reason.trim() || req.body.reason.length > 1500) return res.status(400).json({ message: 'Valid item and reason required' });
   const item = await Donation.findById(req.body.itemId);
   if (!item) return res.status(404).json({ message: 'Item not found' });
   if (await Request.exists({ itemId: item._id, requesterId: req.user._id })) return res.status(409).json({ message: 'You already requested this item' });
   const request = await Request.create({ itemId: item._id, requesterId: req.user._id, requesterName: req.user.fullName, donorEmail: item.donorEmail, reason: req.body.reason.trim(), status: 'Pending' });
+  await require('../lib/audit')(req, 'request.create', request._id);
   res.status(201).json(request);
 });
 router.put('/:id', async (req, res) => {
@@ -36,6 +37,7 @@ router.put('/:id', async (req, res) => {
   if (request.itemId?.donorEmail !== req.user.email) return res.status(403).json({ message: 'Access denied' });
   request.status = req.body.status;
   await request.save();
+  await require('../lib/audit')(req, 'request.' + req.body.status.toLowerCase(), request._id);
   res.json(request);
 });
 module.exports = router;

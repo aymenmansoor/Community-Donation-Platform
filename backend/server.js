@@ -5,6 +5,9 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
+const security = require('./middleware/security');
+const audit = require('./lib/audit');
+const { upload, uploadDir, saveImage, removeImage } = require('./lib/uploads');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -14,30 +17,19 @@ const Request = require('./models/Request');
 const auth = require('./middleware/auth');
 const app = express();
 app.disable('x-powered-by');
-app.use((req, res, next) => {
-  res.set('X-Content-Type-Options', 'nosniff');
-  res.set('Referrer-Policy', 'no-referrer');
-  next();
-});
+app.use(security.headers);
+app.use('/api', security.apiLimit);
 const origins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://127.0.0.1:3000').split(',').map(s => s.trim());
 app.use(cors({ origin(origin, cb) { cb(null, !origin || origins.includes(origin)); } }));
 app.use(express.json({ limit: '32kb' }));
-app.get('/api/health', (req, res) => res.status(mongoose.connection.readyState === 1 ? 200 : 503).json({ status: mongoose.connection.readyState === 1 ? 'ok' : 'unavailable', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
-const uploadDir = path.resolve(process.env.UPLOAD_DIR || path.join(__dirname, 'uploads'));
-fs.mkdirSync(uploadDir, { recursive: true });
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 6 } });
-app.use('/uploads', express.static(uploadDir, { dotfiles: 'deny', setHeaders(res) { res.set('Content-Security-Policy', "default-src 'none'; sandbox"); } }));
-// Small single-instance auth throttle. Use a shared gateway limiter for a scaled deployment.
-const attempts = new Map();
-const sweep = setInterval(() => { for (const [key, value] of attempts) if (value.until < Date.now()) attempts.delete(key); }, 60000);
-sweep.unref();
-app.use('/api/auth', (req, res, next) => {
-  const key = req.ip;
-  let entry = attempts.get(key);
-  if (!entry || entry.until < Date.now()) { entry = { count: 0, until: Date.now() + 60000 }; attempts.set(key, entry); }
-  if (++entry.count > 30) return res.status(429).json({ message: 'Too many attempts. Try again shortly.' });
+app.use(security.inputGuard);
+app.use((req, res, next) => {
+  if (!['GET','HEAD','OPTIONS'].includes(req.method) && req.headers.origin && !origins.includes(req.headers.origin)) return res.status(403).json({ message: 'Origin not allowed' });
   next();
 });
+app.get('/api/health', (req, res) => res.status(mongoose.connection.readyState === 1 ? 200 : 503).json({ status: mongoose.connection.readyState === 1 ? 'ok' : 'unavailable', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
+app.use('/uploads', express.static(uploadDir, { dotfiles: 'deny', setHeaders(res) { res.set('Content-Security-Policy', "default-src 'none'; sandbox"); } }));
+app.use('/api/auth', security.authLimit);
 const publicUser = user => ({ id: user._id, fullName: user.fullName, email: user.email, role: user.role });
 app.post('/api/auth/signup', async (req, res) => {
   const { fullName, email, password, role = 'Donor' } = req.body;
@@ -57,24 +49,16 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/donate', auth, (req, res, next) => {
   if (req.user.role !== 'Donor') return res.status(403).json({ message: 'Donor account required' });
   next();
-}, upload.single('image'), async (req, res) => {
+}, security.uploadLimit, upload.single('image'), security.inputGuard, async (req, res) => {
   const { itemName, category, description, contact = 'Not shared' } = req.body;
   if (![itemName, description, category, contact].every(v => typeof v === 'string') || !itemName.trim() || itemName.length > 120 || !description.trim() || description.length > 2000 || contact.length > 80 || !['Clothes', 'Books', 'Toys', 'Other'].includes(category)) return res.status(400).json({ message: 'Valid item, category, description and contact required' });
-  let image = null;
-  if (req.file) {
-    const b = req.file.buffer;
-    const png = b.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
-    const jpg = b[0] === 255 && b[1] === 216 && b[2] === 255;
-    const webp = b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP';
-    if (!png && !jpg && !webp) return res.status(400).json({ message: 'Only PNG, JPEG or WebP images are allowed' });
-    image = `${crypto.randomUUID()}.${png ? 'png' : jpg ? 'jpg' : 'webp'}`;
-    await fs.promises.writeFile(path.join(uploadDir, image), b);
-  }
+  const image = await saveImage(req.file);
   try {
     const donation = await Donation.create({ itemName: itemName.trim(), category, description: description.trim(), contact: contact.trim() || 'Not shared', donorEmail: req.user.email, image });
+    await audit(req, 'donation.create', donation._id);
     res.status(201).json(donation);
   } catch (error) {
-    if (image) await fs.promises.unlink(path.join(uploadDir, image)).catch(() => {});
+    if (image) await removeImage(image);
     throw error;
   }
 });
@@ -86,13 +70,14 @@ app.delete('/api/donations/:id', auth, async (req, res) => {
   if (req.user.role !== 'Donor' || item.donorEmail !== req.user.email) return res.status(403).json({ message: 'Access denied' });
   await Request.deleteMany({ itemId: item._id });
   await item.deleteOne();
-  if (item.image && path.basename(item.image) === item.image) await fs.promises.unlink(path.join(uploadDir, item.image)).catch(() => {});
+  await audit(req, 'donation.delete', item._id);
+  await removeImage(item.image);
   res.sendStatus(204);
 });
 app.use('/api/requests', require('./routes/requestRoutes'));
 app.use((err, req, res, next) => {
-  const status = err instanceof multer.MulterError ? 400 : err.code === 11000 ? 409 : err.name === 'ValidationError' || err.type === 'entity.parse.failed' ? 400 : err.status === 413 ? 413 : 500;
-  if (status === 500) console.error('Request failed:', err.name);
+  const status = err instanceof multer.MulterError ? 400 : err.code === 11000 ? 409 : err.name === 'ValidationError' || err.type === 'entity.parse.failed' ? 400 : [400, 413].includes(err.status) ? err.status : 500;
+  if (status === 500) console.error(JSON.stringify({ event: 'request.error', type: err.name }));
   res.status(status).json({ message: status === 500 ? 'Internal server error' : status === 409 ? 'Record already exists' : 'Invalid request or upload' });
 });
 async function start() {

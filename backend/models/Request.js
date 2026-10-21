@@ -14,12 +14,12 @@ const RequestSchema = new mongoose.Schema({
     requesterName: {
         type: String,
         required: true,
-        trim: true
+        trim: true, maxlength: 2000
     },
     reason: {
         type: String,
         required: true,
-        trim: true
+        trim: true, maxlength: 2000
     },
     status: {
         type: String,
@@ -29,7 +29,7 @@ const RequestSchema = new mongoose.Schema({
     donorEmail: {
         type: String,
         required: true,
-        trim: true
+        trim: true, maxlength: 2000
     },
     createdAt: {   // 🔥 FIXED
         type: Date,

@@ -67,7 +67,7 @@ test('uploads validate signatures and enforce file size limits', async () => {
   assert.equal(invalid.status, 400);
   const large = await call('/api/donate', { method: 'POST', token: donor.token, body: form(new Blob([Buffer.alloc(5 * 1024 * 1024 + 1)])) });
   assert.equal(large.status, 400);
-  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX1kAAAAASUVORK5CYII=', 'base64');
+  const png = await require('sharp')({ create: { width: 2, height: 2, channels: 3, background: 'green' } }).png().toBuffer();
   const result = await call('/api/donate', { method: 'POST', token: donor.token, body: form(new Blob([png], { type: 'image/png' })) });
   assert.equal(result.status, 201);
   const image = await fetch(base + '/uploads/' + result.data.image);
