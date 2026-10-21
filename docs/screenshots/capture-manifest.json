@@ -1,7 +1,8 @@
 {
-  "capturedAt": "2026-10-21T07:41:55.791Z",
+  "capturedAt": "2026-10-21T08:48:22.874Z",
   "browser": "154.0.8037.57",
-  "viewport": "1440×1000",
+  "desktopViewport": "1440×1000",
+  "mobileViewport": "390×844",
   "source": "Actual running React UI and Express API with local MongoDB; no mocked responses or screenshot composites.",
   "checks": [
     "Registration screen and real account creation",
@@ -9,44 +10,107 @@
     "Donation form saves a real listing",
     "Donor profile lists saved donations; delete control works",
     "Requester login, available items, and request modal",
-    "Donor request management persists approval and rejection"
+    "Donor request management persists approval and rejection",
+    "Admin login, statistics, search, suspension, moderation and audit UI",
+    "Mobile admin navigation, responsive layout and server logout",
+    "Mobile requester login, browse and own request history"
   ],
   "pages": [
     {
       "file": "docs/screenshots/registration.png",
-      "sha256": "45e5551795a5a42d970e516164d98a2042de7b0181a85618616d40b9b2c5edf8"
+      "width": 1440,
+      "height": 1000,
+      "sha256": "26f8e17dfb2484bccd95eb4ac4671c185e818a9fa467dac60f0c01213bbe09df"
     },
     {
       "file": "docs/screenshots/login.png",
-      "sha256": "8802e6040ec3a5e3e4f45bce318eb9657063281409b0a12da51e001114875ed6"
+      "width": 1440,
+      "height": 1000,
+      "sha256": "09166cafd1d657e42ed9529eb27c7ce854e8cc19c6276832b13960ac3dedb332"
     },
     {
       "file": "docs/screenshots/home.png",
-      "sha256": "92b0715efbcba54fdb6369a2e6ac692286003334f590e9ae7ba08e2b1973e9a1"
+      "width": 1440,
+      "height": 1000,
+      "sha256": "b524eafdc385c68110b33d3c1e5968f70b584f8ac95bbe11cb5c2de5bce5e9dc"
     },
     {
       "file": "docs/screenshots/donation-form.png",
-      "sha256": "c89c9c34b4e4ddccf9abb21812c8c50d0db2bc43ed0c3dd2d43a89fda7384906"
+      "width": 1440,
+      "height": 1056,
+      "sha256": "70126fd01a4e27890107233bf8338879b0ecdece311b7827601326b08114218a"
     },
     {
       "file": "docs/screenshots/donor-profile.png",
-      "sha256": "eb74e0cea2acb4e99f48b876737bf78a9361fd08e5ce18d7cdfcd23577453ec7"
+      "width": 1440,
+      "height": 1977,
+      "sha256": "4546d420946e908ed883d8431d9bce98b6a68078cbecf355e98a1ca44b04c0f2"
     },
     {
       "file": "docs/screenshots/my-requests.png",
-      "sha256": "e2ef61ae677b87bb0422a9285695bd6272e42c08d3029d18c6bcf4151abe6a69"
+      "width": 1440,
+      "height": 1000,
+      "sha256": "f5fcb71626e35070076b6e3af1e395d40b6a5db02b42e2c4846b62eed019aa62"
     },
     {
       "file": "docs/screenshots/available-items.png",
-      "sha256": "3de3faaf99d6101c396377cb9d215c0daf67730d0759e70b2131cb6d3c184368"
+      "width": 1440,
+      "height": 1572,
+      "sha256": "86eafc472107650e8b2940a3c6d91a59d4e084d241bec36b3610f3681b3a7deb"
     },
     {
       "file": "docs/screenshots/request-submission.png",
-      "sha256": "5b8f93441c019673c085a2fc978b05d34a34fb7cbd019b987b87e34c60403afa"
+      "width": 1440,
+      "height": 1572,
+      "sha256": "36b4dd85c9d1e63682747108735246df7ed2b5e811d18e7e3f5ec35fa52a1552"
     },
     {
       "file": "docs/screenshots/donor-requests.png",
-      "sha256": "3d2ffde97edb79b8cb06f862de8044125d59a86893daaecd4b6b80426aaa0cf4"
+      "width": 1440,
+      "height": 1000,
+      "sha256": "79edea6d124786f854b39994bf27afe4c69bc8b6201c5731a658dd7fb3083448"
+    },
+    {
+      "file": "docs/screenshots/admin-overview.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "49e51e149d29668b14d0cfdfc2549090690652293f63dabe0e097c7ab997d8b6"
+    },
+    {
+      "file": "docs/screenshots/admin-users.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "28f24888adb4e68bd5816be1c1bf483ab97df9c2bc2459342d4582c991812ed8"
+    },
+    {
+      "file": "docs/screenshots/admin-donations.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "7338ef0b5cb87619daf7b7e6d9c2f5fd500de263a305162b0ca160d572b50fa8"
+    },
+    {
+      "file": "docs/screenshots/admin-requests.png",
+      "width": 1440,
+      "height": 1000,
+      "sha256": "a82f6dcf8dc3f542b67bb933d0960ebc20f90b4936f35da670a2ea327aad6a7e"
+    },
+    {
+      "file": "docs/screenshots/admin-audit.png",
+      "width": 1440,
+      "height": 1478,
+      "sha256": "861c9ceb3db261c8c361e1f99bc3e2fb6a71e41831612f4c4f5d650e05d85de6"
+    },
+    {
+      "file": "docs/screenshots/admin-mobile.png",
+      "width": 390,
+      "height": 1300,
+      "sha256": "5e4eb39eb911424a0a000fcc58d558032c3ad0582ae8bdf6d58e494d0fb8a1f6"
+    },
+    {
+      "file": "docs/screenshots/requester-mobile.png",
+      "width": 390,
+      "height": 4184,
+      "sha256": "75c78a0ac31e69e1b6c8946a26e360d6641969c960a8459d3d3009048b9ab978"
     }
   ]
 }

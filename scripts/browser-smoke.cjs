@@ -26,7 +26,8 @@ async function capture(page, name) {
   assert.equal(await page.locator('nav.navbar').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(25, 135, 84)');
   const file = path.join(screenshots, name + '.png');
   await page.screenshot({ path: file, fullPage: true, animations: 'disabled' });
-  pages.push({ file: `docs/screenshots/${name}.png`, sha256: crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') });
+  const png = fs.readFileSync(file);
+  pages.push({ file: `docs/screenshots/${name}.png`, width: png.readUInt32BE(16), height: png.readUInt32BE(20), sha256: crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') });
 }
 async function login(page, email) {
   await page.goto(base + '/auth');
@@ -138,9 +139,12 @@ async function main() {
       assert.equal(await row.locator('.badge').last().innerText(), status);
     }
   });
+  const stableBook = await Donation.findOne({ itemName: 'Science textbook collection', donorEmail: 'mira.donor@example.test' });
+  await Request.updateMany({ itemId: stableBook._id }, { status: 'Pending' });
+  await User.deleteOne({ email: 'browser.smoke@example.test' });
   await require('./browser-admin.cjs')({ browser, base, capture, check });
   assert.deepEqual(errors, [], 'No browser runtime exceptions');
-  fs.writeFileSync(path.join(screenshots, 'capture-manifest.json'), JSON.stringify({ capturedAt: new Date().toISOString(), browser: await browser.version(), viewport: '1440×1000', source: 'Actual running React UI and Express API with local MongoDB; no mocked responses or screenshot composites.', checks, pages }, null, 2) + '\n');
+  fs.writeFileSync(path.join(screenshots, 'capture-manifest.json'), JSON.stringify({ capturedAt: new Date().toISOString(), browser: await browser.version(), desktopViewport: '1440×1000', mobileViewport: '390×844', source: 'Actual running React UI and Express API with local MongoDB; no mocked responses or screenshot composites.', checks, pages }, null, 2) + '\n');
   console.log(`Browser checks passed: ${checks.length}; genuine screenshots saved: ${pages.length}`);
 }
 main().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {

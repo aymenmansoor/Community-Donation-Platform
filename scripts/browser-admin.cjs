@@ -6,6 +6,7 @@ module.exports = async ({ browser, base, capture, check }) => {
     const mobile = page.getByRole('button', { name: 'Toggle navigation' });
     if (await mobile.isVisible() && !await page.getByRole('link', { name }).isVisible()) await mobile.click();
     await page.getByRole('link', { name }).click();
+    if (await mobile.isVisible() && await mobile.getAttribute('aria-expanded') === 'true') await mobile.click();
   };
   await check('Admin login, statistics, search, suspension, moderation and audit UI', async () => {
     await page.goto(base + '/auth');

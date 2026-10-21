@@ -1,37 +1,52 @@
-# Validation and demo fixtures
+# ShareBloom tests and fictional fixtures
 
-Use Node 24, npm 11, MongoDB 8, and Chromium. Install locked dependencies with `npm ci` in the root, backend and frontend. Start MongoDB and the two application services as described in the README.
+Use Node 24, npm 11, MongoDB 8 and Chromium. Install the frozen lockfiles in the root, backend and frontend. Stop only services you started before refreshing node_modules; `scripts/setup-local.sh` is the tested cloud setup entry point.
 
 ```bash
 npm test --prefix backend
-CI=true npm test --prefix frontend -- --watchAll=false --runInBand
-CI=true npm run build --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
 ```
 
-The backend's Node test runner creates a unique `community_test_*` database on local MongoDB, runs six integration tests, and removes only that database and its temporary uploads. It covers health/CORS, signup/login, ownership/role enforcement, upload validation, request identity/privacy, approvals/rejections and deletion. Tests need a real database and fail without it.
+The backend runner uses a unique local `community_test_*` database and temporary upload directory, then removes only those resources. Its 17 tests exercise real MongoDB, authentication, expired/invalid JWTs, cookie restoration/revocation/CSRF, RBAC, ownership, suspension, admin provisioning/permissions, reversible moderation/audits, upload decoding and limits, injection rejection, throttling and production configuration. No tests are skipped.
 
-The four frontend tests use the existing React Scripts/Jest runner. `moduleNameMapper` resolves React Router 7's existing CommonJS exports for Jest 27, and `setupTests.js` supplies TextEncoder/TextDecoder. The compatibility fix needs no React Router or Jest upgrade. A separate same-major React Router security update was applied after auditing the dependencies; Jest/React Scripts remain unchanged. Tests assert current app behavior instead of the obsolete Create React App welcome text.
+The ten frontend tests cover registration/login navigation, donor routes/forms, status changes, request histories, forged client roles, expired sessions, admin statistics/search/suspension, image previews and invalid image choices. The original test assertions now run with Vitest/jsdom. Vite/Vitest replaced the retired React Scripts/Jest dependency tree after compatible patches alone left 109 audit findings. React screens/API contracts remain unchanged; current React Router exports resolve natively. No assertions were removed or disabled.
 
-## Fictional seed data
+## Fictional data and initial Admin
 
-Set a private `DEMO_PASSWORD` of 12–72 bytes, plus `MONGO_URI`, then run:
+Set private `MONGO_URI` and `DEMO_PASSWORD` (12–72 bytes) outside the checkout:
 
 ```bash
 node --env-file=/absolute/private/backend.env --env-file=/absolute/private/demo.env backend/scripts/seed-demo.js
+node --env-file=/absolute/private/backend.env backend/scripts/seed-photos.js
 ```
 
-The script creates Mira Willow (`mira.donor@example.test`), Rowan Vale (`rowan.requester@example.test`), and Ellis Fern (`ellis.requester@example.test`), six realistic listings, and three requests (Pending, Approved, Rejected). Names and scenarios are fictional; the reserved `.test` addresses do not send mail. Contact details are intentionally not shared. Existing records and passwords are preserved on repeated runs. The password is supplied privately and is never committed or displayed in screenshots.
+Three original fixture accounts are Mira Willow (`mira.donor@example.test`), Rowan Vale (`rowan.requester@example.test`) and Ellis Fern (`ellis.requester@example.test`). The original six listings and Pending/Approved/Rejected requests are preserved. Two additional fictional listings use correctly matched, verified CC0/public-domain photographs: a cup/saucer and a wall clock. Existing genuine uploads and populated image fields are never replaced. See [attribution](../backend/fixtures/photos/ATTRIBUTION.md) for the source-access limitation affecting the other categories.
 
-## Real browser checks and screenshots
+Both seeds require explicit `ALLOW_DEMO_SEED=true` for non-local databases; do not use that override on real data. Reruns preserve existing records/passwords. No real email or phone details are used, and nothing sends mail.
 
-With the seeded local services running and Chromium installed:
+For the first Admin only, use private `ADMIN_EMAIL`, `ADMIN_NAME`, `ADMIN_PASSWORD` and `MONGO_URI`:
 
 ```bash
-node --env-file=/absolute/private/backend.env --env-file=/absolute/private/demo.env scripts/browser-smoke.cjs
+node --env-file=/absolute/private/backend.env --env-file=/absolute/private/admin.env backend/scripts/provision-admin.js
 ```
 
-The script uses the pinned Playwright development dependency and the system Chromium executable (`CHROMIUM_PATH` can override `/usr/bin/chromium`). It performs six browser scenarios without mocking API responses: registration, donor login/home, donation posting, profile/deletion, requester browsing/submission/history, and donor status management observed in the requester session. Temporary fixtures are removed afterward; the seeded request's status is restored to Pending.
+The local fictional admin is Sage Linden. There is no hardcoded password. Provisioning refuses a second bootstrap or existing-email promotion. The command is for a single controlled execution; production administrative recovery requires a separate authorized operation.
 
-It writes nine genuine full-page screenshots to `docs/screenshots/`, along with a capture manifest recording the browser, viewport, checks and SHA-256 hashes. Screenshots show the running React app, not HTML mockups or composed illustrations. Listing cards without uploaded photos display the application's normal local fallback image. No password or token is displayed.
+## Real Chromium flow and screenshots
 
-The script is intended for the dedicated fictional demo database. Do not run it against real user data or a public deployment without adapting the fixture lifecycle.
+Start the API and React services, seed the fictional database and provision its fictional Admin, then run:
+
+```bash
+node --env-file=/absolute/private/backend.env \
+  --env-file=/absolute/private/demo.env \
+  --env-file=/absolute/private/admin.env scripts/browser-smoke.cjs
+```
+
+The script uses pinned Playwright with `/usr/bin/chromium` (`CHROMIUM_PATH` can override it). Nine scenarios perform real registration, cookie login, photo preview/upload, profile/deletion, requester browsing/submission/history, donor decisions, admin search/suspension/reactivation/moderation/audit, mobile layout checks, server logout and protected-route rejection. No API responses are mocked.
+
+Sixteen genuine images and a SHA-256 capture manifest are saved under `docs/screenshots/`. The browser checks use temporary fictional records, then restore the stable sample request status and remove their temporary account/listing/request. Audit events are retained. These scripts are for the dedicated fictional demo database, not real user data. Do not run them against public services without adapting the fixture lifecycle.
+
+## Production transport rehearsal
+
+See [deployment preparation](DEPLOYMENT.md) for the verified local TLS rehearsal. `scripts/production-smoke.cjs` tests the authenticated Compose configuration with a trusted local test certificate and leaves the key outside the checkout. The final public provider/domain, browser TLS configuration, abuse controls and backup recovery remain untested until approved hosting exists.
