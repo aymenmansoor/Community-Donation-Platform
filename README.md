@@ -38,16 +38,31 @@ Built with **React, Node.js, Express, and MongoDB**.
 4. **Donors** review incoming requests and their statuses.
 5. **Requesters** follow the progress of their submitted requests.
 
-## 📸 Screenshots
+## 📸 Application gallery
 
-Application screenshots can be added here once captured from the running project. Recommended views include the home page, donation form, available items, request form, and request history.
+Captured from the running React application with Express and MongoDB, using fictional demo accounts and persisted listings/requests. Click an image to view it at full size.
+
+| Home | Login | Registration |
+| --- | --- | --- |
+| [![Donor home](docs/screenshots/home.png)](docs/screenshots/home.png) | [![Login form](docs/screenshots/login.png)](docs/screenshots/login.png) | [![Account registration](docs/screenshots/registration.png)](docs/screenshots/registration.png) |
+
+| Post a donation | Browse available items | Submit a request |
+| --- | --- | --- |
+| [![Donation form](docs/screenshots/donation-form.png)](docs/screenshots/donation-form.png) | [![Available donations](docs/screenshots/available-items.png)](docs/screenshots/available-items.png) | [![Request submission dialog](docs/screenshots/request-submission.png)](docs/screenshots/request-submission.png) |
+
+| My Requests | Donor request management | Donor profile |
+| --- | --- | --- |
+| [![Request history with pending, approved and rejected statuses](docs/screenshots/my-requests.png)](docs/screenshots/my-requests.png) | [![Donor approval and rejection controls](docs/screenshots/donor-requests.png)](docs/screenshots/donor-requests.png) | [![Donor contribution profile](docs/screenshots/donor-profile.png)](docs/screenshots/donor-profile.png) |
+
+See [test and capture instructions](docs/TESTING.md) and the [capture manifest](docs/screenshots/capture-manifest.json).
 
 ## 🚀 Getting started
 
 ### Prerequisites
 
-- Node.js and npm
-- MongoDB running locally or a MongoDB connection string
+- Node.js 24 and npm 11 (validated locally)
+- MongoDB 8, or Docker for the official local database container
+- Chromium for the browser checks and screenshot capture
 
 ### 1. Clone the repository
 
@@ -56,18 +71,31 @@ git clone https://github.com/aymenmansoor/Community-Donation-Platform.git
 cd Community-Donation-Platform
 ```
 
-### 2. Configure and start the backend
+### 2. Install dependencies and start MongoDB
+
+```bash
+npm ci
+(cd backend && npm ci)
+(cd frontend && npm ci)
+docker run -d --name community-donation-mongo \
+  -p 127.0.0.1:27017:27017 \
+  -v community-donation-mongo-data:/data/db \
+  mongo@sha256:4b58ebcb1dc7a7b4e84cd8ce9098d48764ae4478876898ff9551acf2ac4a6a6d --bind_ip_all
+```
+
+For an existing container, use `docker start community-donation-mongo`. This loopback-only, isolated development database has no authentication; use the authenticated configuration in [deployment preparation](docs/DEPLOYMENT.md) before public hosting.
+
+### 3. Configure and start the backend
 
 ```bash
 cd backend
-npm install
 ```
 
 Create a `backend/.env` file containing values for your own environment:
 
 ```dotenv
 MONGO_URI=mongodb://127.0.0.1:27017/community_donation
-JWT_SECRET=replace-with-a-long-random-secret
+JWT_SECRET=<generate-a-private-random-value-of-at-least-32-characters>
 PORT=5000
 ```
 
@@ -79,19 +107,34 @@ node server.js
 
 The API runs at `http://localhost:5000` by default.
 
-### 3. Start the frontend
+### 4. Start the frontend
 
 Open another terminal from the repository root:
 
 ```bash
 cd frontend
-npm install
 npm start
 ```
 
 Open `http://localhost:3000` in your browser.
 
-The current frontend sends requests to `http://localhost:5000`, so keep the backend running on that port when testing locally.
+The frontend defaults to the local backend on port 5000. `REACT_APP_API_URL` selects a different backend at build time; an explicitly empty value uses the current origin. Bootstrap CSS and modal JavaScript are bundled locally.
+
+### 5. Seed and validate
+
+Use the private seed-password instructions in [docs/TESTING.md](docs/TESTING.md), then run:
+
+```bash
+npm test --prefix backend
+CI=true npm test --prefix frontend -- --watchAll=false --runInBand
+CI=true npm run build --prefix frontend
+```
+
+API access requires a valid signed-in session. Donors manage only their own listings and requests; requesters see their own request history. The API health endpoint reports actual database connectivity.
+
+### Hosting status
+
+Public hosting has **not** been launched. Dockerfiles, a same-origin Nginx gateway, authenticated MongoDB configuration and persistent storage are prepared in `compose.demo.yaml`. Read [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the security review, private environment variables, local rehearsal and remaining launch approvals.
 
 ## 📁 Project structure
 

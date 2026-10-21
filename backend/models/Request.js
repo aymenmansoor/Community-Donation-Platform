@@ -1,39 +1,41 @@
 const mongoose = require('mongoose');
 
 const RequestSchema = new mongoose.Schema({
-    itemId: { 
-        type: mongoose.Schema.Types.ObjectId, 
+    itemId: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Donation',   // 🔥 FIXED
         required: true
     },
-    requesterId: { 
-        type: mongoose.Schema.Types.ObjectId, 
+    requesterId: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    requesterName: { 
+    requesterName: {
         type: String,
         required: true,
         trim: true
     },
-    reason: { 
+    reason: {
         type: String,
         required: true,
         trim: true
     },
-    status: { 
-        type: String, 
-        default: 'Pending' // Pending, Approved, Delivered
+    status: {
+        type: String,
+        default: 'Pending',
+        enum: ['Pending', 'Approved', 'Rejected']
     },
-    donorEmail: { 
-        type: String, 
+    donorEmail: {
+        type: String,
         required: true,
         trim: true
     },
     createdAt: {   // 🔥 FIXED
-        type: Date, 
-        default: Date.now 
+        type: Date,
+        default: Date.now
     }
 });
 
+RequestSchema.index({ itemId: 1, requesterId: 1 }, { unique: true });
 module.exports = mongoose.model('Request', RequestSchema);

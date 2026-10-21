@@ -1,5 +1,6 @@
+import { imageUrl } from '../api';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../api';
 
 function BrowseItems() {
   const [items, setItems] = useState([]);
@@ -12,7 +13,7 @@ function BrowseItems() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/donations');
+        const res = await axios.get('/api/donations');
         setItems(res.data);
         setLoading(false);
       } catch (err) {
@@ -26,7 +27,7 @@ function BrowseItems() {
   // --- FIXED SUBMIT FUNCTION ---
   const submitRequest = async (e) => {
     e.preventDefault();
-    
+
     if (!reason) return alert("Please enter a reason!");
     if (!selectedItem) return alert("No item selected!");
 
@@ -37,14 +38,14 @@ function BrowseItems() {
         requesterName: user.fullName,
         reason: reason,
         // FIX: Donor email bhej rahe hain taake donor dashboard pe nazar aaye
-        donorEmail: selectedItem.donorEmail 
+        donorEmail: selectedItem.donorEmail
       };
-      
-      const res = await axios.post('http://localhost:5000/api/requests', requestData); 
-      
+
+      const res = await axios.post('/api/requests', requestData);
+
       if (res.status === 200 || res.status === 201) {
         alert("Success! Your request has been sent.");
-        
+
         // Modal ko close karne ka tarika
         const modalElement = document.getElementById('requestModal');
         if (window.bootstrap) {
@@ -55,7 +56,7 @@ function BrowseItems() {
         setSelectedItem(null);
         setReason('');
         // Page reload taake 'My Requests' update ho jaye
-        window.location.reload(); 
+        window.location.reload();
       }
     } catch (err) {
       console.error("Submission Error:", err.response?.data || err.message);
@@ -73,14 +74,14 @@ function BrowseItems() {
           <div className="col-md-4 mb-4" key={item._id}>
             <div className="card h-100 shadow border-0 rounded-4 overflow-hidden">
               <div style={{ height: '250px', overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
-                <img 
-                  src={item.image ? item.image : "https://placehold.co/300x200?text=No+Image+Available"} 
-                  className="card-img-top" 
-                  alt={item.itemName} 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  onError={(e) => { 
-                    e.target.onerror = null; 
-                    e.target.src = "https://placehold.co/300x200?text=Image+Not+Found"; 
+                <img
+                  src={imageUrl(item.image)}
+                  className="card-img-top"
+                  alt={item.itemName}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/donation-fallback.svg";
                   }}
                 />
               </div>
@@ -90,10 +91,11 @@ function BrowseItems() {
                 <p className="card-text text-muted small flex-grow-1">{item.description}</p>
                 <div className="d-flex justify-content-between align-items-center mt-3">
                     <span className="badge bg-light text-success border border-success">{item.category}</span>
-                    <button 
+                    <button
                       className="btn btn-primary rounded-pill px-4 fw-bold shadow-sm"
                       onClick={() => setSelectedItem(item)}
-                      data-bs-toggle="modal" 
+                      disabled={user?.role !== 'Requester'}
+                      data-bs-toggle="modal"
                       data-bs-target="#requestModal"
                     >
                       🤝 Request Now
@@ -115,10 +117,10 @@ function BrowseItems() {
             </div>
             <form onSubmit={submitRequest}>
               <div className="modal-body p-4 text-start">
-                <label className="form-label fw-bold">Wajah (Reason) batayein:</label>
-                <textarea 
-                  className="form-control border-primary shadow-sm" 
-                  rows="4" 
+                <label className="form-label fw-bold">Why do you need this item?</label>
+                <textarea
+                  className="form-control border-primary shadow-sm"
+                  rows="4"
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Tell the donor why you need this item..."

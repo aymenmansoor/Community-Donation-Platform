@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../api';
 
 function Signup({ setAuthMode }) {
     const [formData, setFormData] = useState({
@@ -11,15 +11,15 @@ function Signup({ setAuthMode }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/signup', formData);
+            await axios.post('/api/auth/signup', formData);
             alert("Success! Your account has been created. Please login.");
-            
+
             setFormData({ fullName: '', email: '', password: '', role: 'Donor' });
 
             if(setAuthMode) {
-                setAuthMode('login'); 
+                setAuthMode('login');
             }
 
         } catch (err) {
@@ -34,39 +34,39 @@ function Signup({ setAuthMode }) {
             <h3 className="text-center mb-4 text-success fw-bold">Create an Account</h3>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                    <label className="form-label fw-bold">Full Name</label>
-                    <input 
-                        type="text" 
-                        className="form-control" 
+                    <label htmlFor="signup-0" className="form-label fw-bold">Full Name</label>
+                    <input id="signup-0"
+                        type="text"
+                        className="form-control"
                         value={formData.fullName}
-                        onChange={(e) => setFormData({...formData, fullName: e.target.value})} 
-                        required 
+                        onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                        required
                     />
                 </div>
                 <div className="mb-3">
-                    <label className="form-label fw-bold">Email Address</label>
-                    <input 
-                        type="email" 
-                        className="form-control" 
+                    <label htmlFor="signup-1" className="form-label fw-bold">Email Address</label>
+                    <input id="signup-1"
+                        type="email"
+                        className="form-control"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})} 
-                        required 
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        required
                     />
                 </div>
                 <div className="mb-3">
-                    <label className="form-label fw-bold">Password</label>
-                    <input 
-                        type="password" 
-                        className="form-control" 
+                    <label htmlFor="signup-2" className="form-label fw-bold">Password</label>
+                    <input id="signup-2"
+                        type="password" minLength={12} maxLength={72} autoComplete="new-password"
+                        className="form-control"
                         value={formData.password}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})} 
-                        required 
+                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        required
                     />
                 </div>
                 <div className="mb-3">
-                    <label className="form-label fw-bold">Register As:</label>
-                    <select 
-                        className="form-select" 
+                    <label htmlFor="signup-3" className="form-label fw-bold">Register As:</label>
+                    <select id="signup-3"
+                        className="form-select"
                         value={formData.role}
                         onChange={(e) => setFormData({...formData, role: e.target.value})}
                     >

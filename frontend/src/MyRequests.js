@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from './api';
 
 function MyRequests() {
   const [requests, setRequests] = useState([]);
@@ -10,7 +10,7 @@ function MyRequests() {
     const fetchMyRequests = async () => {
       try {
         // Backend se sirf is user ki requests lane ke liye API call
-        const res = await axios.get(`http://localhost:5000/api/requests/user/${user._id}`);
+        const res = await axios.get(`/api/requests/user/${user._id}`);
         setRequests(res.data);
         setLoading(false);
       } catch (err) {
@@ -33,7 +33,7 @@ function MyRequests() {
   return (
     <div className="container mt-5 animate__animated animate__fadeIn">
       <h2 className="text-primary fw-bold mb-4 border-bottom pb-3">My Help Requests</h2>
-      
+
       {requests.length > 0 ? (
         <div className="table-responsive shadow-sm rounded-4">
           <table className="table table-hover align-middle bg-white mb-0">

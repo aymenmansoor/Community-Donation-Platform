@@ -1,25 +1,15 @@
+import { imageUrl } from '../api';
 import React, { useState } from 'react'; // useState add kiya modal control ke liye
-import axios from 'axios';
+import axios from '../api';
 
 function ItemCard({ title, category, description, contact, image, id, onDeleteSuccess }) {
   // Modal ki state (Khula hai ya band)
   const [showModal, setShowModal] = useState(false);
 
-  const getImageUrl = (cat) => {
-    switch (cat) {
-      case 'Books': return 'https://cdn-icons-png.flaticon.com/512/3389/3389081.png';
-      case 'Clothes': return 'https://cdn-icons-png.flaticon.com/512/3531/3531844.png';
-      case 'Toys': return 'https://cdn-icons-png.flaticon.com/512/3082/3082060.png';
-      case 'Food': return 'https://cdn-icons-png.flaticon.com/512/3075/3075977.png';
-      case 'Electronics': return 'https://cdn-icons-png.flaticon.com/512/3659/3659899.png';
-      default: return 'https://cdn-icons-png.flaticon.com/512/1161/1161388.png';
-    }
-  };
-
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this donation?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/donations/${id}`);
+        await axios.delete(`/api/donations/${id}`);
         onDeleteSuccess();
       } catch (err) { alert("Failed to delete."); }
     }
@@ -29,22 +19,20 @@ function ItemCard({ title, category, description, contact, image, id, onDeleteSu
     <div className="col-md-4 mb-4">
       <div className="card h-100 shadow-sm border-0 transition-hover" style={{ borderRadius: '20px', overflow: 'hidden' }}>
         <div className="d-flex justify-content-center align-items-center bg-light" style={{ height: '220px' }}>
-          <img 
-            src={image ? `http://localhost:5000/uploads/${image}` : getImageUrl(category)} 
-            alt={title} 
-            style={{ width: '100%', height: '100%', objectFit: image ? 'cover' : 'contain', padding: image ? '0' : '30px' }} 
+          <img
+            src={imageUrl(image)}
+            alt={title}
+            style={{ width: '100%', height: '100%', objectFit: image ? 'cover' : 'contain', padding: image ? '0' : '30px' }}
           />
         </div>
-        
+
         <div className="card-body d-flex flex-column p-4">
           <span className="badge bg-success-subtle text-success rounded-pill px-3 py-2 fw-bold mb-2 w-fit">{category}</span>
           <h5 className="card-title fw-bold text-dark mb-2">{title}</h5>
           <p className="card-text text-muted text-truncate">{description}</p>
-          
+
           <div className="mt-3 pt-3 border-top text-center">
-            <a href={`https://wa.me/${contact ? contact.replace(/\s/g, '') : ''}`} target="_blank" rel="noreferrer" className="btn btn-success w-100 rounded-pill fw-bold mb-3">
-              Contact Donor
-            </a>
+            <p className="text-muted small">Contact: {contact || 'Not shared'}</p>
 
             <div className="d-flex justify-content-between align-items-center">
               {/* Details Button - Modal trigger karega */}
@@ -68,10 +56,11 @@ function ItemCard({ title, category, description, contact, image, id, onDeleteSu
               </div>
               <div className="modal-body p-4">
                 <div className="text-center mb-4">
-                   <img 
-                    src={image ? `http://localhost:5000/uploads/${image}` : getImageUrl(category)} 
+                   <img
+                    src={imageUrl(image)}
+                    alt={title}
                     className="rounded-4 shadow-sm"
-                    style={{ maxHeight: '250px', width: '100%', objectFit: 'cover' }} 
+                    style={{ maxHeight: '250px', width: '100%', objectFit: 'cover' }}
                    />
                 </div>
                 <p className="fw-bold mb-1">Category: <span className="text-success">{category}</span></p>

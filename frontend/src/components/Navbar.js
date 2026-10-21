@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import logo from './logo.png'; 
+import logo from './logo.png';
 
 function Navbar({ user }) {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/auth'; 
+    window.location.href = '/auth';
   };
 
   return (
@@ -16,7 +16,7 @@ function Navbar({ user }) {
           <img src={logo} alt="Logo" width="60" height="60" className="me-2" style={{ objectFit: 'contain' }} />
           <span className="fs-3">AMS Helpers</span>
         </Link>
-        
+
         <div className="ms-auto d-flex align-items-center">
           <Link to="/about" className="text-white text-decoration-none me-4 fw-bold">About Us</Link>
           <Link to="/browse-items" className="text-white text-decoration-none me-4 fw-bold">🔍 Browse Items</Link>
@@ -31,9 +31,9 @@ function Navbar({ user }) {
                 <Link to="/donor-requests" className="text-white text-decoration-none me-4 fw-bold">📥 Received Requests</Link>
               )}
 
-              <Link to="/donate" className="text-white text-decoration-none me-4 fw-bold">🎁 Donate</Link>
+              {user.role === 'Donor' && <Link to="/donate" className="text-white text-decoration-none me-4 fw-bold">🎁 Donate</Link>}
               <Link to="/profile" className="text-white text-decoration-none me-4 fw-bold">Profile</Link>
-              
+
               <button onClick={handleLogout} className="btn btn-warning btn-sm rounded-pill px-4 fw-bold shadow-sm">Logout</button>
             </>
           ) : (

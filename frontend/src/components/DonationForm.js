@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../api';
 
 function DonationForm({ onPostSuccess }) {
   const [itemName, setItemName] = useState('');
@@ -13,31 +13,24 @@ function DonationForm({ onPostSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const phoneRegex = /^03\d{9}$/;
-
-    if (!phoneRegex.test(contact)) {
-      return alert("invaalid number kindly use correct number (e.g., 03001234567).");
-    }
-
-    
     const formData = new FormData();
     formData.append('itemName', itemName);
     formData.append('category', category);
     formData.append('description', description);
-    formData.append('contact', contact);
+    formData.append('contact', contact || 'Not shared');
     formData.append('donorEmail', user.email);
     if (image) formData.append('image', image);
 
     try {
-      await axios.post('http://localhost:5000/api/donate', formData);
-      alert("DONEE.");
-      
+      await axios.post('/api/donate', formData);
+      alert("Your donation has been posted.");
+
       setItemName('');
       setContact('');
       setDescription('');
-      onPostSuccess(); 
+      onPostSuccess();
     } catch (err) {
-      alert("Error.");
+      alert(err.response?.data?.message || "Could not post donation.");
     }
   };
 
@@ -45,17 +38,17 @@ function DonationForm({ onPostSuccess }) {
     <div className="card shadow-sm border-0 p-4 rounded-4 text-start">
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label fw-bold">Item Name</label>
-          <input 
+          <label htmlFor="donationform-0" className="form-label fw-bold">Item Name</label>
+          <input id="donationform-0"
             type="text" className="form-control" placeholder="e.g. Science textbooks"
             value={itemName} onChange={(e) => setItemName(e.target.value)}
-            required 
+            required
           />
         </div>
 
         <div className="mb-3">
-          <label className="form-label fw-bold">Category</label>
-          <select className="form-select" value={category} onChange={(e) => setCategory(e.target.value)}>
+          <label htmlFor="donationform-1" className="form-label fw-bold">Category</label>
+          <select id="donationform-1" className="form-select" value={category} onChange={(e) => setCategory(e.target.value)}>
             <option value="Clothes">Clothes</option>
             <option value="Books">Books</option>
             <option value="Toys">Toys</option>
@@ -64,23 +57,23 @@ function DonationForm({ onPostSuccess }) {
         </div>
 
         <div className="mb-3">
-          <label className="form-label fw-bold">Contact Number (Pakistani Format)</label>
-          <input 
-            type="text" className="form-control" placeholder="e.g. 03001234567"
+          <label htmlFor="donationform-2" className="form-label fw-bold">Contact details (optional)</label>
+          <input id="donationform-2"
+            type="text" className="form-control" placeholder="Leave blank to keep contact private"
             value={contact} onChange={(e) => setContact(e.target.value)}
-            required // HTML5 Validation
+            maxLength="80"
           />
-          <small className="text-muted">Format: 03xxxxxxxxx (11 digits)</small>
+          <small className="text-muted">Only share details you want other signed-in users to see.</small>
         </div>
 
         <div className="mb-3">
-          <label className="form-label fw-bold">Item Image</label>
-          <input type="file" className="form-control" onChange={(e) => setImage(e.target.files[0])} />
+          <label htmlFor="donationform-3" className="form-label fw-bold">Item Image</label>
+          <input id="donationform-3" type="file" accept="image/png,image/jpeg,image/webp" className="form-control" onChange={(e) => setImage(e.target.files[0])} />
         </div>
 
         <div className="mb-3">
-          <label className="form-label fw-bold">Description</label>
-          <textarea 
+          <label htmlFor="donationform-4" className="form-label fw-bold">Description</label>
+          <textarea id="donationform-4"
             className="form-control" rows="3" placeholder="Condition, size, or quantity..."
             value={description} onChange={(e) => setDescription(e.target.value)}
             required // HTML5 Validation

@@ -1,0 +1,52 @@
+{
+  "capturedAt": "2026-10-21T07:41:55.791Z",
+  "browser": "154.0.8037.57",
+  "viewport": "1440×1000",
+  "source": "Actual running React UI and Express API with local MongoDB; no mocked responses or screenshot composites.",
+  "checks": [
+    "Registration screen and real account creation",
+    "Donor login and home",
+    "Donation form saves a real listing",
+    "Donor profile lists saved donations; delete control works",
+    "Requester login, available items, and request modal",
+    "Donor request management persists approval and rejection"
+  ],
+  "pages": [
+    {
+      "file": "docs/screenshots/registration.png",
+      "sha256": "45e5551795a5a42d970e516164d98a2042de7b0181a85618616d40b9b2c5edf8"
+    },
+    {
+      "file": "docs/screenshots/login.png",
+      "sha256": "8802e6040ec3a5e3e4f45bce318eb9657063281409b0a12da51e001114875ed6"
+    },
+    {
+      "file": "docs/screenshots/home.png",
+      "sha256": "92b0715efbcba54fdb6369a2e6ac692286003334f590e9ae7ba08e2b1973e9a1"
+    },
+    {
+      "file": "docs/screenshots/donation-form.png",
+      "sha256": "c89c9c34b4e4ddccf9abb21812c8c50d0db2bc43ed0c3dd2d43a89fda7384906"
+    },
+    {
+      "file": "docs/screenshots/donor-profile.png",
+      "sha256": "eb74e0cea2acb4e99f48b876737bf78a9361fd08e5ce18d7cdfcd23577453ec7"
+    },
+    {
+      "file": "docs/screenshots/my-requests.png",
+      "sha256": "e2ef61ae677b87bb0422a9285695bd6272e42c08d3029d18c6bcf4151abe6a69"
+    },
+    {
+      "file": "docs/screenshots/available-items.png",
+      "sha256": "3de3faaf99d6101c396377cb9d215c0daf67730d0759e70b2131cb6d3c184368"
+    },
+    {
+      "file": "docs/screenshots/request-submission.png",
+      "sha256": "5b8f93441c019673c085a2fc978b05d34a34fb7cbd019b987b87e34c60403afa"
+    },
+    {
+      "file": "docs/screenshots/donor-requests.png",
+      "sha256": "3d2ffde97edb79b8cb06f862de8044125d59a86893daaecd4b6b80426aaa0cf4"
+    }
+  ]
+}

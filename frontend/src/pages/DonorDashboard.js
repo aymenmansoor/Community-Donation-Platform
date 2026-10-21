@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../api';
 
 function DonorDashboard() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // LocalStorage se login donor ka data nikalna
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -12,7 +12,7 @@ function DonorDashboard() {
     const fetchRequests = async () => {
       try {
         // Backend API se sirf is donor ke liye aayi requests mangwana
-        const res = await axios.get(`http://localhost:5000/api/requests/donor/${user.email}`);
+        const res = await axios.get(`/api/requests/donor/${user.email}`);
         setRequests(res.data);
         setLoading(false);
       } catch (err) {
@@ -26,7 +26,7 @@ function DonorDashboard() {
   // Status (Approve/Reject) update karne ka function
   const updateStatus = async (id, newStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/requests/${id}`, { status: newStatus });
+      await axios.put(`/api/requests/${id}`, { status: newStatus });
       alert(`Request has been ${newStatus}!`);
       // List ko refresh karne ke liye
       setRequests(requests.map(req => req._id === id ? { ...req, status: newStatus } : req));
@@ -50,7 +50,7 @@ function DonorDashboard() {
                 <div className="d-flex justify-content-between align-items-center">
                   <h5 className="fw-bold text-primary">{req.itemId?.itemName}</h5>
                   <span className={`badge rounded-pill ${
-                    req.status === 'Pending' ? 'bg-warning text-dark' : 
+                    req.status === 'Pending' ? 'bg-warning text-dark' :
                     req.status === 'Approved' ? 'bg-success' : 'bg-danger'
                   }`}>
                     {req.status}
@@ -74,4 +74,4 @@ function DonorDashboard() {
   );
 }
 
-export default DonorDashboard;  
+export default DonorDashboard;
