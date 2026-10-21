@@ -22,6 +22,7 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       NODE_ENV: production
+      MONGO_NETWORK: private
       MONGO_URI: mongodb://${MONGO_APP_USER}:${MONGO_APP_PASSWORD}@mongo:27017/community_donation?authSource=community_donation
       JWT_SECRET: ${JWT_SECRET:?Set a random JWT_SECRET of at least 32 characters}
       CORS_ORIGIN: ${PUBLIC_ORIGIN:?Set the approved HTTPS frontend origin}

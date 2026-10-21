@@ -21,3 +21,9 @@ test('rate limits return 429 and standard headers', async () => {
     const limited = await fetch(url); assert.equal(limited.status, 429); assert(limited.headers.has('ratelimit'));
   } finally { await new Promise(r => server.close(r)); }
 });
+test('production rejects unsafe secrets, wildcard/path origins, disabled DB TLS and ephemeral upload paths', () => {
+  const validate = require('../lib/config');
+  const valid = {NODE_ENV:'production',JWT_SECRET:'a'.repeat(48),MONGO_URI:'mongodb+srv://private.example/community',CORS_ORIGIN:'https://share.example',UPLOAD_DIR:'/data/uploads'};
+  assert.doesNotThrow(() => validate(valid));
+  for (const changes of [{JWT_SECRET:'short'}, {CORS_ORIGIN:'*'}, {CORS_ORIGIN:'https://share.example/path'}, {UPLOAD_DIR:'uploads'}, {MONGO_URI:'mongodb://private.example/db?tls=false'}, {MONGO_URI:'mongodb://public.example/db'}]) assert.throws(() => validate({...valid,...changes}));
+});

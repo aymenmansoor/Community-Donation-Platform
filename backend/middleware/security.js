@@ -7,6 +7,7 @@ function unsafe(value, depth = 0) {
   return Object.keys(value).some(key => /[.$\[\]]/.test(key) || ['__proto__', 'prototype', 'constructor'].includes(key) || unsafe(value[key], depth + 1));
 }
 function inputGuard(req, res, next) {
+  if (['POST','PATCH','PUT'].includes(req.method) && !req.path.endsWith('/logout') && !req.is('multipart/form-data') && (!req.body || Array.isArray(req.body))) return res.status(400).json({ message: 'JSON object required' });
   if (unsafe(req.body) || unsafe(req.query)) return res.status(400).json({ message: 'Invalid input' });
   next();
 }

@@ -35,6 +35,7 @@ test('connected database health and origin allowlist', async () => {
   assert.equal(denied.headers.get('access-control-allow-origin'), null);
   const allowed = await call('/api/health', { headers: { Origin: 'http://localhost:3000' } });
   assert.equal(allowed.headers.get('access-control-allow-origin'), 'http://localhost:3000');
+  assert.equal(allowed.headers.get('access-control-allow-credentials'), 'true');
 });
 test('signup/login validate inputs and preserve account roles', async () => {
   assert.equal((await call('/api/auth/signup', { method: 'POST', body: { fullName: 'Invalid', email: { $ne: '' }, password } })).status, 400);

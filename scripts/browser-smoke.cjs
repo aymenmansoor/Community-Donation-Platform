@@ -17,15 +17,20 @@ let browser;
 async function check(name, action) { await action(); checks.push(name); console.log('PASS:', name); }
 async function capture(page, name) {
   await page.evaluate(() => document.fonts.ready);
-  await page.locator('img').evaluateAll(images => Promise.all(images.map(img => img.complete ? null : new Promise(resolve => { img.onload = resolve; img.onerror = resolve; }))));
+  await page.locator('img').evaluateAll(async images => {
+    images.forEach(img => { img.loading = 'eager'; });
+    await Promise.all(images.map(img => img.complete ? null : new Promise(resolve => { img.onload = resolve; img.onerror = resolve; setTimeout(resolve, 5000); })));
+    if (images.some(img => !img.naturalWidth)) throw new Error('Screenshot contains an unloaded image');
+  });
   // Bootstrap must be genuinely loaded; do not capture an unstyled or failed page.
-  assert.equal(await page.locator('nav').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(25, 135, 84)');
+  assert.equal(await page.locator('nav.navbar').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(25, 135, 84)');
   const file = path.join(screenshots, name + '.png');
   await page.screenshot({ path: file, fullPage: true, animations: 'disabled' });
   pages.push({ file: `docs/screenshots/${name}.png`, sha256: crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex') });
 }
 async function login(page, email) {
   await page.goto(base + '/auth');
+  await page.getByRole('heading', { name: /^(Create an Account|Login)$/ }).waitFor();
   const switcher = page.getByRole('button', { name: 'Login Here' });
   if (await switcher.count()) await switcher.click();
   await page.getByLabel('Email Address', { exact: true }).fill(email);
@@ -64,9 +69,11 @@ async function main() {
   });
   await check('Donation form saves a real listing', async () => {
     await page.getByRole('link', { name: /Donate Now/ }).click();
-    await page.getByLabel('Item Name').fill('Canvas school backpack');
+    await page.getByLabel('Item Name').fill('Porcelain mug for a study break');
     await page.getByLabel('Category', { exact: true }).selectOption('Other');
-    await page.getByLabel('Description').fill('A clean, sturdy backpack with two compartments and adjustable straps. Fictional browser test listing.');
+    await page.getByLabel('Description').fill('A white porcelain cup and saucer for a quiet study break. Fictional browser test listing.');
+    await page.getByLabel('Item Image').setInputFiles(path.join(root, 'backend/fixtures/photos/cup.webp'));
+    await page.getByAltText('Selected donation photograph').waitFor();
     await capture(page, 'donation-form');
     const response = page.waitForResponse(r => r.url().endsWith('/api/donate') && r.request().method() === 'POST');
     await page.getByRole('button', { name: 'Post Donation' }).click();
@@ -75,13 +82,13 @@ async function main() {
   });
   await check('Donor profile lists saved donations; delete control works', async () => {
     await page.getByRole('link', { name: 'Profile', exact: true }).click();
-    await page.getByRole('heading', { name: 'Canvas school backpack' }).waitFor();
-    const card = page.locator('.card').filter({ has: page.getByRole('heading', { name: 'Canvas school backpack' }) });
+    await page.getByRole('heading', { name: 'Porcelain mug for a study break' }).waitFor();
+    const card = page.locator('.card').filter({ has: page.getByRole('heading', { name: 'Porcelain mug for a study break' }) });
     const deleted = page.waitForResponse(r => /\/api\/donations\//.test(r.url()) && r.request().method() === 'DELETE');
     await card.getByRole('button', { name: 'Delete', exact: true }).click();
     assert.equal((await deleted).status(), 204);
-    await page.getByRole('heading', { name: 'Canvas school backpack' }).waitFor({ state: 'detached' });
-    assert.equal(await page.locator('.card-title').count(), 6);
+    await page.getByRole('heading', { name: 'Porcelain mug for a study break' }).waitFor({ state: 'detached' });
+    assert.equal(await page.locator('.card-title').count(), 8);
     await capture(page, 'donor-profile');
   });
   const requesterContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'en-GB', timezoneId: 'Asia/Karachi' });
@@ -96,7 +103,7 @@ async function main() {
     await capture(requesterPage, 'my-requests');
     await requesterPage.getByRole('link', { name: /Browse Items/ }).click();
     await requesterPage.getByRole('heading', { name: 'Adjustable study lamp' }).waitFor();
-    assert.equal(await requesterPage.locator('.card-title').count(), 6);
+    assert.equal(await requesterPage.locator('.card-title').count(), 8);
     assert.equal(await requesterPage.locator('img').evaluateAll(images => images.filter(i => !i.complete || !i.naturalWidth).length), 0);
     await capture(requesterPage, 'available-items');
     const card = requesterPage.locator('.card').filter({ has: requesterPage.getByRole('heading', { name: 'Adjustable study lamp' }) });
@@ -131,6 +138,7 @@ async function main() {
       assert.equal(await row.locator('.badge').last().innerText(), status);
     }
   });
+  await require('./browser-admin.cjs')({ browser, base, capture, check });
   assert.deepEqual(errors, [], 'No browser runtime exceptions');
   fs.writeFileSync(path.join(screenshots, 'capture-manifest.json'), JSON.stringify({ capturedAt: new Date().toISOString(), browser: await browser.version(), viewport: '1440×1000', source: 'Actual running React UI and Express API with local MongoDB; no mocked responses or screenshot composites.', checks, pages }, null, 2) + '\n');
   console.log(`Browser checks passed: ${checks.length}; genuine screenshots saved: ${pages.length}`);
@@ -144,7 +152,7 @@ main().catch(error => { console.error(error); process.exitCode = 1; }).finally(a
     const lamp = await Donation.findOne({ itemName: 'Adjustable study lamp', donorEmail: donor });
     if (book) await Request.updateMany({ itemId: book._id }, { status: 'Pending' });
     if (lamp) await Request.deleteMany({ itemId: lamp._id });
-    await Donation.deleteMany({ itemName: 'Canvas school backpack', donorEmail: donor });
+    await Donation.deleteMany({ itemName: 'Porcelain mug for a study break', donorEmail: donor });
     await mongoose.disconnect();
   }
 });

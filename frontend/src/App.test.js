@@ -45,3 +45,19 @@ test('request history renders all three supported statuses', async () => {
   for (const status of ['Pending','Approved','Rejected']) expect(await screen.findByText(status)).toBeInTheDocument();
   expect(api.get).toHaveBeenCalledTimes(1);
 });
+test('server session overrides a forged local Admin role and protects administration', async () => {
+  localStorage.setItem('user', JSON.stringify({id:'spoof',role:'Admin'}));
+  window.history.replaceState({}, '', '/admin');
+  api.get.mockImplementation(url => Promise.resolve({data:url.endsWith('/session') ? {user:{id:'1',fullName:'Rowan Vale',email:'rowan@example.test',role:'Requester'},csrfToken:'csrf'} : []}));
+  render(<App />);
+  expect(await screen.findByRole('heading',{name:'Welcome, Rowan Vale!'})).toBeInTheDocument();
+  expect(api.get.mock.calls.some(([url]) => url.startsWith('/api/admin'))).toBe(false);
+});
+test('an expired session returns protected pages to sign-in', async () => {
+  api.get.mockImplementation(url => Promise.resolve({data:url.endsWith('/session') ? {user:{id:'1',fullName:'Rowan Vale',role:'Requester'}} : []}));
+  render(<App />);
+  await screen.findByRole('heading',{name:'Welcome, Rowan Vale!'});
+  fireEvent(window, new Event('session-expired'));
+  expect(await screen.findByRole('heading',{name:'Create an Account'})).toBeInTheDocument();
+  expect(localStorage.getItem('user')).toBe(null);
+});
