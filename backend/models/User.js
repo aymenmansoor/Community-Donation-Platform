@@ -5,7 +5,8 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, maxlength: 254, lowercase: true, trim: true, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
     password: { type: String, required: true },
     status: { type: String, enum: ['active', 'suspended'], default: 'active' },
-    role: { type: String, enum: ['Donor', 'Requester', 'Admin'], default: 'Donor' }
+    role: { type: String, enum: ['Donor', 'Requester', 'Admin'], default: 'Donor' },
+    createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('User', UserSchema);

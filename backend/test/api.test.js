@@ -128,3 +128,45 @@ test('registration duplicates have the same response and suspension invalidates 
   assert.equal(denied.status, 401); assert.equal(denied.data.message, 'Invalid email or password');
   await require('../models/User').updateOne({ _id: donor.user.id }, { status: 'active' });
 });
+let admin;
+test('initial admin provisioning is explicit and ordinary sessions cannot access administration', async () => {
+  process.env.MONGO_URI = `mongodb://127.0.0.1:27017/${database}`;
+  process.env.ADMIN_NAME = 'Fictional Administrator'; process.env.ADMIN_EMAIL = 'admin@example.test'; process.env.ADMIN_PASSWORD = password;
+  await require('../scripts/provision-admin')();
+  await assert.rejects(require('../scripts/provision-admin')(), /already exists/);
+  const login = await call('/api/auth/login', { method: 'POST', body: { email: 'admin@example.test', password } });
+  admin = login.data; assert.equal(admin.user.role, 'Admin');
+  for (const route of ['stats','users','donations','requests','audit']) {
+    assert.equal((await call('/api/admin/' + route)).status, 401);
+    assert.equal((await call('/api/admin/' + route, { token: donor.token })).status, 403);
+    assert.equal((await call('/api/admin/' + route, { token: requester.token })).status, 403);
+    assert.equal((await call('/api/admin/' + route, { token: admin.token })).status, 200);
+  }
+  const users = await call('/api/admin/users', { token: admin.token });
+  assert.equal(users.data.total, 4); assert.equal(users.data.items.some(u => u.password), false);
+  assert.equal((await call('/api/admin/users?search=Fictional', { token: admin.token })).data.total, 4);
+});
+test('admin suspension revokes sessions permanently and denies role escalation/self lockout', async () => {
+  const route = '/api/admin/users/' + stranger.user.id;
+  assert.equal((await call(route, { method: 'PATCH', token: donor.token, body: { status: 'suspended' } })).status, 403);
+  assert.equal((await call(route, { method: 'PATCH', token: admin.token, body: { role: 'Admin', status: 'active' } })).status, 400);
+  assert.equal((await call('/api/admin/users/' + admin.user.id, { method: 'PATCH', token: admin.token, body: { status: 'suspended' } })).status, 403);
+  assert.equal((await call(route, { method: 'PATCH', token: admin.token, body: { status: 'suspended' } })).status, 200);
+  assert.equal((await call('/api/auth/session', { token: stranger.token })).status, 401);
+  assert.equal((await call(route, { method: 'PATCH', token: admin.token, body: { status: 'active' } })).status, 200);
+  assert.equal((await call('/api/auth/session', { token: stranger.token })).status, 401);
+});
+test('admin moderation preserves records, removes hidden listings from browse and records audit events', async () => {
+  const created = await call('/api/donate', { method: 'POST', token: donor.token, body: { itemName: 'Moderation test', description: 'Fictional item', category: 'Books' } });
+  const route = '/api/admin/donations/' + created.data._id;
+  assert.equal((await call(route, { method: 'PATCH', token: requester.token, body: { moderationStatus: 'hidden', reason: 'Review' } })).status, 403);
+  assert.equal((await call(route, { method: 'PATCH', token: admin.token, body: { moderationStatus: 'hidden', reason: 'Fictional moderation review' } })).status, 200);
+  assert.equal((await call('/api/donations', { token: requester.token })).data.length, 0);
+  assert.equal((await call('/api/donations', { token: donor.token })).data.length, 1);
+  assert.equal((await call('/api/requests', { method: 'POST', token: requester.token, body: { itemId: created.data._id, reason: 'Cannot request a hidden item' } })).status, 404);
+  assert.equal((await call(route, { method: 'PATCH', token: admin.token, body: { moderationStatus: 'published', reason: 'Review complete' } })).status, 200);
+  assert.equal((await call('/api/donations', { token: requester.token })).data.length, 1);
+  const audit = await call('/api/admin/audit', { token: admin.token });
+  assert(audit.data.items.some(event => event.action === 'admin.donation.published'));
+  assert.equal(await require('../models/Donation').countDocuments(), 1);
+});

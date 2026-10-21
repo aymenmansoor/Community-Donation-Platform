@@ -14,6 +14,7 @@ import BrowseItems from './pages/BrowseItems';
 import MyRequests from './pages/MyRequests';
 import DonorRequests from './pages/DonorRequests'; // <-- Naya Import
 
+import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
 
 function App() {
@@ -74,8 +75,9 @@ function App() {
             </div>
           ) : <Navigate to="/" />} />
 
+          <Route path="/admin" element={user?.role === 'Admin' ? <AdminDashboard /> : <Navigate to={user ? "/" : "/auth"} />} />
           {/* Main Routes */}
-          <Route path="/" element={user ? <Home user={user} /> : <Navigate to="/auth" />} />
+          <Route path="/" element={user?.role === 'Admin' ? <Navigate to="/admin" /> : user ? <Home user={user} /> : <Navigate to="/auth" />} />
           <Route path="/about" element={<About />} />
 
           {/* Role Based Routes */}

@@ -23,6 +23,7 @@ function Navbar({ user, onLogout }) {
 
           {user ? (
             <>
+              {user.role === 'Admin' && <Link to="/admin" className="text-white text-decoration-none me-4 fw-bold">Admin dashboard</Link>}
               {user.role === 'Requester' && (
                 <Link to="/my-requests" className="text-white text-decoration-none me-4 fw-bold">📋 My Requests</Link>
               )}

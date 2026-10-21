@@ -43,7 +43,7 @@ app.post('/api/donate', auth, (req, res, next) => {
     throw error;
   }
 });
-app.get('/api/donations', auth, async (req, res) => res.json(await Donation.find().sort({ createdAt: -1 })));
+app.get('/api/donations', auth, async (req, res) => res.json(await Donation.find(req.user.role === 'Admin' ? {} : { $or: [{ moderationStatus: { $ne: 'hidden' } }, { donorEmail: req.user.email }] }).sort({ createdAt: -1 })));
 app.delete('/api/donations/:id', auth, async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: 'Invalid item ID' });
   const item = await Donation.findById(req.params.id);
@@ -55,6 +55,7 @@ app.delete('/api/donations/:id', auth, async (req, res) => {
   await removeImage(item.image);
   res.sendStatus(204);
 });
+app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/requests', require('./routes/requestRoutes'));
 app.use((err, req, res, next) => {
   const status = err instanceof multer.MulterError ? 400 : err.code === 11000 ? 409 : err.name === 'ValidationError' || err.type === 'entity.parse.failed' ? 400 : [400, 413].includes(err.status) ? err.status : 500;
