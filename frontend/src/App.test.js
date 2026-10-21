@@ -1,11 +1,12 @@
+import { vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
 import api from './api';
 import DonorRequests from './pages/DonorRequests';
 import MyRequests from './pages/MyRequests';
-jest.mock('./api', () => ({ __esModule: true, default: { get: jest.fn(), post: jest.fn(), put: jest.fn() }, setCsrfToken: jest.fn(), imageUrl: jest.fn(() => '/donation-fallback.svg') }));
+vi.mock('./api', () => ({ __esModule: true, default: { get: vi.fn(), post: vi.fn(), put: vi.fn() }, setCsrfToken: vi.fn(), imageUrl: vi.fn(() => '/donation-fallback.svg') }));
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
   localStorage.clear();
   window.history.replaceState({}, '', '/');
   api.get.mockImplementation(url => url === '/api/auth/session' ? Promise.resolve({ data: { user: null } }) : Promise.resolve({ data: [] }));
