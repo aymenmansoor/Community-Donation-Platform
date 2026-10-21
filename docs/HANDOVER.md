@@ -1,5 +1,7 @@
 # ShareBloom handover
 
+**Final status:** complete as a GitHub portfolio project. The owner has decided against public deployment; earlier launch notes below are historical only.
+
 The repository stays `aymenmansoor/Community-Donation-Platform`, on `main`. The application now has ShareBloom branding, hardened input/upload boundaries, revocable cookie authentication, server-enforced Donor/Requester/Admin access control, a matching admin dashboard, genuine screenshots and documented hosting preparation. Existing records and genuine uploads were preserved. Local services use the existing workspace; no additional worktree or public deployment was created.
 
 ## Focused implementation commits
@@ -38,3 +40,9 @@ Final public-host browser/TLS checks, backup restoration, multi-instance/shared 
 See [testing](TESTING.md), [security design](SECURITY.md), [validation](VALIDATION.md), [deployment preparation](DEPLOYMENT.md) and [photo attribution](../backend/fixtures/photos/ATTRIBUTION.md). Public deployment, paid resources and disclosure of real credentials still require explicit approval.
 
 See [the deployment plan](DEPLOYMENT-PLAN.md) for the recommended single-server architecture, estimated costs, exact launch sequence and outstanding acceptance gates. No billing or public deployment was enabled.
+
+## Final portfolio closure
+
+The owner has decided not to deploy ShareBloom publicly. The project is complete as a GitHub portfolio repository, with local run instructions and all 16 original application captures preserved. The README uses expandable workflow sections instead of three-column screenshot tables and embeds both mobile captures. Earlier deployment documents are historical preparation only, not an active launch plan or recommendation. No further deployment, hosting purchase, billing or cloud resource creation is authorised.
+
+Screenshot diagnosis: all 16 tracked PNGs decode successfully and match their capture-manifest hashes. The previous README embedded 15 images in three-column tables, with the second mobile capture only linked as text. The GitHub browser check loaded all 15 embedded images without screenshot-request failures; blank image responses were not reproduced. Tables constrained readability. The replacement gallery embeds all 16 in expandable workflow sections with clickable full-resolution links. The verification environment blocks GitHub’s asset CDN, limiting fully styled page inspection; that environment restriction is separate from screenshot availability. No application files, screenshots, database records or demo accounts changed in this documentation-only closeout.
