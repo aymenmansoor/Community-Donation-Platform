@@ -13,12 +13,14 @@ router.post('/donate', auth, (req, res, next) => {
   const { itemName, category, description, contact = 'Not shared' } = req.body;
   if (![itemName, description, category, contact].every(v => typeof v === 'string') || !itemName.trim() || itemName.length > 120 || !description.trim() || description.length > 2000 || contact.length > 80 || !['Clothes', 'Books', 'Toys', 'Other'].includes(category)) return res.status(400).json({ message: 'Valid item, category, description and contact required' });
   const image = await saveImage(req.file);
+  let persisted = false;
   try {
     const donation = await Donation.create({ itemName: itemName.trim(), category, description: description.trim(), contact: contact.trim() || 'Not shared', donorEmail: req.user.email, image });
+    persisted = true;
     await audit(req, 'donation.create', donation._id);
     res.status(201).json(donation);
   } catch (error) {
-    if (image) await removeImage(image);
+    if (image && !persisted) await removeImage(image);
     throw error;
   }
 });

@@ -171,3 +171,15 @@ test('admin moderation preserves records, removes hidden listings from browse an
   assert(audit.data.items.some(event => event.action === 'admin.donation.published'));
   assert.equal(await require('../models/Donation').countDocuments(), 1);
 });
+test('an audit outage never removes an image already referenced by a saved donation', async () => {
+  const AuditEvent = require('../models/AuditEvent'); const original = AuditEvent.create;
+  const form = new FormData(); form.append('itemName','Audit outage fixture'); form.append('category','Other'); form.append('description','Fictional failure-path test');
+  const image = await require('sharp')({create:{width:2,height:2,channels:3,background:'green'}}).png().toBuffer();
+  form.append('image', new Blob([image],{type:'image/png'}), 'image.png');
+  AuditEvent.create = async () => { throw new Error('Simulated audit outage'); };
+  try {
+    assert.equal((await call('/api/donate',{method:'POST',token:donor.token,body:form})).status,500);
+    const item = await require('../models/Donation').findOne({itemName:'Audit outage fixture'});
+    assert(item); assert.equal((await fetch(base+'/uploads/'+item.image)).status,200);
+  } finally { AuditEvent.create = original; }
+});
