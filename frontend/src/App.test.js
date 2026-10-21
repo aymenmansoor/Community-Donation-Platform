@@ -3,25 +3,25 @@ import App from './App';
 import api from './api';
 import DonorRequests from './pages/DonorRequests';
 import MyRequests from './pages/MyRequests';
-jest.mock('./api', () => ({ __esModule: true, default: { get: jest.fn(), post: jest.fn(), put: jest.fn() }, imageUrl: jest.fn(() => '/donation-fallback.svg') }));
+jest.mock('./api', () => ({ __esModule: true, default: { get: jest.fn(), post: jest.fn(), put: jest.fn() }, setCsrfToken: jest.fn(), imageUrl: jest.fn(() => '/donation-fallback.svg') }));
 beforeEach(() => {
   jest.clearAllMocks();
   localStorage.clear();
   window.history.replaceState({}, '', '/');
-  api.get.mockResolvedValue({ data: [] });
+  api.get.mockImplementation(url => url === '/api/auth/session' ? Promise.resolve({ data: { user: null } }) : Promise.resolve({ data: [] }));
 });
-test('signed-out visitors see registration and can switch to login', () => {
+test('signed-out visitors see registration and can switch to login', async () => {
   render(<App />);
-  expect(screen.getByRole('heading', { name: 'Create an Account' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: 'Create an Account' })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'Login Here' }));
   expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument();
   expect(screen.getByLabelText('Email Address')).toBeInTheDocument();
 });
 test('a donor sees their home page and donation form', async () => {
   localStorage.setItem('user', JSON.stringify({ id: 'donor', fullName: 'Mira Willow', email: 'mira@example.test', role: 'Donor' }));
-  localStorage.setItem('token', 'test-session');
+  api.get.mockImplementation(url => url === '/api/auth/session' ? Promise.resolve({ data: { user: JSON.parse(localStorage.getItem('user')), csrfToken: 'test-csrf' } }) : Promise.resolve({ data: [] }));
   render(<App />);
-  expect(screen.getByRole('heading', { name: 'Welcome, Mira Willow!' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: 'Welcome, Mira Willow!' })).toBeInTheDocument();
   fireEvent.click(screen.getByRole('link', { name: /Donate Now/ }));
   expect(screen.getByLabelText('Item Name')).toBeInTheDocument();
   await waitFor(() => expect(api.get).toHaveBeenCalledWith('/api/donations'));

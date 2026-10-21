@@ -14,7 +14,7 @@ function Signup({ setAuthMode }) {
 
         try {
             await axios.post('/api/auth/signup', formData);
-            alert("Success! Your account has been created. Please login.");
+            alert("If registration is available, your account is ready. Please sign in.");
 
             setFormData({ fullName: '', email: '', password: '', role: 'Donor' });
 

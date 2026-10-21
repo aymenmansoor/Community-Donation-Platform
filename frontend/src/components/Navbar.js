@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import logo from './logo.png';
+import api from '../api';
 
-function Navbar({ user }) {
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/auth';
+function Navbar({ user, onLogout }) {
+  const handleLogout = async () => {
+    try { await api.post('/api/auth/logout'); onLogout(); }
+    catch { alert('Could not end the server session. Please retry.'); }
   };
 
   return (

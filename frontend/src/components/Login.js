@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from '../api';
 import { useNavigate } from 'react-router-dom';
 
-function Login() {
+function Login({ onLogin }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
@@ -12,12 +12,8 @@ function Login() {
         try {
             const res = await axios.post('/api/auth/login', { email, password });
 
-            localStorage.setItem('token', res.data.token);
-            localStorage.setItem('user', JSON.stringify(res.data.user));
-
-            alert("Welcome: " + res.data.user.fullName);
+            onLogin(res.data);
             navigate('/');
-            window.location.reload();
 
         } catch (err) {
             const errorMsg = err.response && err.response.data

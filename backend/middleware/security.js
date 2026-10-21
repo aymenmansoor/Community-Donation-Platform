@@ -4,7 +4,7 @@ const audit = require('../lib/audit');
 function unsafe(value, depth = 0) {
   if (depth > 12) return true;
   if (!value || typeof value !== 'object') return false;
-  return Object.keys(value).some(key => key.startsWith('$') || key.includes('.') || ['__proto__', 'prototype', 'constructor'].includes(key) || unsafe(value[key], depth + 1));
+  return Object.keys(value).some(key => /[.$\[\]]/.test(key) || ['__proto__', 'prototype', 'constructor'].includes(key) || unsafe(value[key], depth + 1));
 }
 function inputGuard(req, res, next) {
   if (unsafe(req.body) || unsafe(req.query)) return res.status(400).json({ message: 'Invalid input' });

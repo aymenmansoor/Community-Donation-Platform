@@ -12,7 +12,7 @@ const { app } = require('../server');
 let server, base;
 const password = 'Fictional-test-password-2026';
 async function call(route, { token, body, method = 'GET', headers = {} } = {}) {
-  const response = await fetch(base + route, { method, headers: { ...(body && !(body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers }, body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined });
+  const response = await fetch(base + route, { method, headers: { ...(body && !(body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}), 'X-Session-Transport': 'bearer', ...headers }, body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined });
   return { status: response.status, data: response.status === 204 ? null : await response.json(), headers: response.headers };
 }
 let donor, requester, stranger, donation, request;
@@ -97,4 +97,34 @@ test('only the owning donor can approve/reject and delete an item', async () => 
   assert.equal((await call('/api/donations/' + donation._id, { method: 'DELETE', token: stranger.token })).status, 403);
   assert.equal((await call('/api/donations/' + donation._id, { method: 'DELETE', token: donor.token })).status, 204);
   assert.equal((await call('/api/requests', { token: requester.token })).data.length, 0);
+});
+test('invalid/expired/unsigned JWTs, operator injection and public admin registration are denied', async () => {
+  const jwt = require('jsonwebtoken');
+  for (const token of ['invalid', jwt.sign({ id: donor.user.id }, process.env.JWT_SECRET, { expiresIn: -1, issuer: 'sharebloom', audience: 'sharebloom-api' }), jwt.sign({ id: donor.user.id }, process.env.JWT_SECRET, { algorithm: 'HS384' })]) assert.equal((await call('/api/donations', { token })).status, 401);
+  assert.equal((await call('/api/auth/signup', { method: 'POST', body: { fullName: 'Escalation', email: 'admin-attempt@example.test', password, role: 'Admin' } })).status, 400);
+  assert.equal((await call('/api/auth/login', { method: 'POST', body: { email: { $ne: null }, password } })).status, 400);
+  assert.equal((await call('/api/donations?x[$ne]=1', { token: donor.token })).status, 400);
+  assert.equal((await call('/api/auth/signup', { method: 'POST', headers: { Origin: 'https://evil.example' }, body: {} })).status, 403);
+});
+test('cookie sessions are HttpOnly, CSRF protected, restorable and revoked on logout', async () => {
+  const login = await call('/api/auth/login', { method: 'POST', headers: { 'X-Session-Transport': 'cookie' }, body: { email: donor.user.email, password } });
+  assert.equal(login.data.token, undefined);
+  const cookie = login.headers.get('set-cookie'); assert.match(cookie, /HttpOnly/); assert.match(cookie, /SameSite=Lax/);
+  const headers = { Cookie: cookie.split(';')[0] };
+  const restored = await call('/api/auth/session', { headers });
+  assert.equal(restored.data.user.id, donor.user.id);
+  assert.equal((await call('/api/auth/logout', { method: 'POST', headers })).status, 403);
+  assert.equal((await call('/api/auth/logout', { method: 'POST', headers: { ...headers, 'X-CSRF-Token': login.data.csrfToken } })).status, 204);
+  assert.equal((await call('/api/auth/session', { headers })).status, 401);
+});
+test('registration duplicates have the same response and suspension invalidates existing sessions', async () => {
+  const body = { fullName: 'Fictional donor', email: donor.user.email, password, role: 'Donor' };
+  const duplicate = await call('/api/auth/signup', { method: 'POST', body });
+  assert.equal(duplicate.status, 201);
+  assert.equal(await require('../models/User').countDocuments({ email: donor.user.email }), 1);
+  await require('../models/User').updateOne({ _id: donor.user.id }, { status: 'suspended' });
+  assert.equal((await call('/api/donations', { token: donor.token })).status, 401);
+  const denied = await call('/api/auth/login', { method: 'POST', body });
+  assert.equal(denied.status, 401); assert.equal(denied.data.message, 'Invalid email or password');
+  await require('../models/User').updateOne({ _id: donor.user.id }, { status: 'active' });
 });

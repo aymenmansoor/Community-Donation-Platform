@@ -2,15 +2,10 @@ require('dotenv').config({ quiet: true });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const security = require('./middleware/security');
 const audit = require('./lib/audit');
 const { upload, uploadDir, saveImage, removeImage } = require('./lib/uploads');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
 const User = require('./models/User');
 const Donation = require('./models/Donation');
 const Request = require('./models/Request');
@@ -21,6 +16,7 @@ app.use(security.headers);
 app.use('/api', security.apiLimit);
 const origins = (process.env.CORS_ORIGIN || 'http://localhost:3000,http://127.0.0.1:3000').split(',').map(s => s.trim());
 app.use(cors({ origin(origin, cb) { cb(null, !origin || origins.includes(origin)); } }));
+app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 app.use(express.json({ limit: '32kb' }));
 app.use(security.inputGuard);
 app.use((req, res, next) => {
@@ -30,22 +26,7 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => res.status(mongoose.connection.readyState === 1 ? 200 : 503).json({ status: mongoose.connection.readyState === 1 ? 'ok' : 'unavailable', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
 app.use('/uploads', express.static(uploadDir, { dotfiles: 'deny', setHeaders(res) { res.set('Content-Security-Policy', "default-src 'none'; sandbox"); } }));
 app.use('/api/auth', security.authLimit);
-const publicUser = user => ({ id: user._id, fullName: user.fullName, email: user.email, role: user.role });
-app.post('/api/auth/signup', async (req, res) => {
-  const { fullName, email, password, role = 'Donor' } = req.body;
-  if (typeof fullName !== 'string' || !fullName.trim() || fullName.length > 100 || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || typeof password !== 'string' || password.length < 12 || Buffer.byteLength(password) > 72 || !['Donor', 'Requester'].includes(role)) return res.status(400).json({ message: 'Valid name, email, role and password (12–72 bytes) required' });
-  const normalizedEmail = email.trim().toLowerCase();
-  if (await User.exists({ email: normalizedEmail })) return res.status(409).json({ message: 'Email already registered' });
-  await User.create({ fullName: fullName.trim(), email: normalizedEmail, password: await bcrypt.hash(password, 12), role });
-  res.status(201).json({ message: 'Account created. Please sign in.' });
-});
-app.post('/api/auth/login', async (req, res) => {
-  if (typeof req.body.email !== 'string' || typeof req.body.password !== 'string' || Buffer.byteLength(req.body.password) > 72) return res.status(400).json({ message: 'Email and password required' });
-  const user = await User.findOne({ email: req.body.email.trim().toLowerCase() });
-  if (!user || !await bcrypt.compare(req.body.password, user.password)) return res.status(401).json({ message: 'Invalid email or password' });
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
-  res.json({ token, user: publicUser(user) });
-});
+app.use('/api/auth', require('./routes/authRoutes'));
 app.post('/api/donate', auth, (req, res, next) => {
   if (req.user.role !== 'Donor') return res.status(403).json({ message: 'Donor account required' });
   next();
@@ -85,6 +66,7 @@ async function start() {
   if (process.env.NODE_ENV === 'production' && (!process.env.MONGO_URI || !process.env.CORS_ORIGIN || origins.some(s => !s.startsWith('https://')) || !process.env.UPLOAD_DIR)) throw new Error('Production requires MONGO_URI, HTTPS CORS_ORIGIN and persistent UPLOAD_DIR');
   await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/community_donation', { serverSelectionTimeoutMS: 10000 });
   await User.init();
+  await require('./models/Session').init();
   console.log('MongoDB connected');
   const server = app.listen(process.env.PORT || 5000, process.env.HOST || '127.0.0.1', () => console.log(`API listening on ${process.env.PORT || 5000}`));
   server.on('error', error => { console.error('Listen failed:', error.code); process.exit(1); });
