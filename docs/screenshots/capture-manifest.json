@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-10-21T08:48:22.874Z",
+  "capturedAt": "2026-10-21T09:19:43.584Z",
   "browser": "154.0.8037.57",
   "desktopViewport": "1440×1000",
   "mobileViewport": "390×844",
@@ -44,7 +44,7 @@
       "file": "docs/screenshots/donor-profile.png",
       "width": 1440,
       "height": 1977,
-      "sha256": "4546d420946e908ed883d8431d9bce98b6a68078cbecf355e98a1ca44b04c0f2"
+      "sha256": "f2ed41a30be7154c8bb62fe1686bfcd370aed86d2405c536ea36a858a5ef8768"
     },
     {
       "file": "docs/screenshots/my-requests.png",
@@ -56,13 +56,13 @@
       "file": "docs/screenshots/available-items.png",
       "width": 1440,
       "height": 1572,
-      "sha256": "86eafc472107650e8b2940a3c6d91a59d4e084d241bec36b3610f3681b3a7deb"
+      "sha256": "557b1d59173e87dfe2cc5cebfdaaf92325a2e1489e25822de897832068b273fb"
     },
     {
       "file": "docs/screenshots/request-submission.png",
       "width": 1440,
       "height": 1572,
-      "sha256": "36b4dd85c9d1e63682747108735246df7ed2b5e811d18e7e3f5ec35fa52a1552"
+      "sha256": "40747f73aef98fdafba45c92bd27182b939c3d187397936a76ba8ff38cf14ca8"
     },
     {
       "file": "docs/screenshots/donor-requests.png",
@@ -74,7 +74,7 @@
       "file": "docs/screenshots/admin-overview.png",
       "width": 1440,
       "height": 1000,
-      "sha256": "49e51e149d29668b14d0cfdfc2549090690652293f63dabe0e097c7ab997d8b6"
+      "sha256": "d92535763f0216ba3749e521d2c2d9c74da6e4978b0452ab696f0f6be4fa3ed6"
     },
     {
       "file": "docs/screenshots/admin-users.png",
@@ -86,7 +86,7 @@
       "file": "docs/screenshots/admin-donations.png",
       "width": 1440,
       "height": 1000,
-      "sha256": "7338ef0b5cb87619daf7b7e6d9c2f5fd500de263a305162b0ca160d572b50fa8"
+      "sha256": "63308aa10593e4f681348aca3ec21383eb4605b3bc66a1f40ec116fc58da977a"
     },
     {
       "file": "docs/screenshots/admin-requests.png",
@@ -98,19 +98,19 @@
       "file": "docs/screenshots/admin-audit.png",
       "width": 1440,
       "height": 1478,
-      "sha256": "861c9ceb3db261c8c361e1f99bc3e2fb6a71e41831612f4c4f5d650e05d85de6"
+      "sha256": "136b85ab0b7b33529a6b3b8be5511ccecbec163f1aedd1b22be99e4cbfbc5074"
     },
     {
       "file": "docs/screenshots/admin-mobile.png",
       "width": 390,
       "height": 1300,
-      "sha256": "5e4eb39eb911424a0a000fcc58d558032c3ad0582ae8bdf6d58e494d0fb8a1f6"
+      "sha256": "2a07efb99650f672a9b1993c77308834403c3441619a1c02c83b9238f6c6e959"
     },
     {
       "file": "docs/screenshots/requester-mobile.png",
       "width": 390,
       "height": 4184,
-      "sha256": "75c78a0ac31e69e1b6c8946a26e360d6641969c960a8459d3d3009048b9ab978"
+      "sha256": "5448f9a8ee5a308e1419495146bd13be159bf64ad5845625b0237aacc7ed5f33"
     }
   ]
 }

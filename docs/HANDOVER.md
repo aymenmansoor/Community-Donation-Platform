@@ -19,7 +19,7 @@ The final documentation/gallery commit follows these commits; no history was rew
 
 ## Verified results
 
-- 17 backend tests passed against real MongoDB; 10 frontend tests passed; no tests were skipped or remain failing.
+- 18 backend tests passed against real MongoDB; 10 frontend tests passed; no tests were skipped or remain failing.
 - Nine real Chromium scenarios passed, including desktop donor/requester/admin flows and mobile admin/requester navigation.
 - Production frontend build passed. Docker API/frontend images built with TLS verification.
 - Authenticated Compose started locally and passed a verified local HTTPS cookie/CSRF/session/donation/logout rehearsal. The temporary rehearsal was stopped; its volumes were retained.
@@ -29,10 +29,12 @@ The final documentation/gallery commit follows these commits; no history was rew
 
 ## Remaining blockers and unexecuted checks
 
-**Stage 4 is partially complete.** Two matching CC0/public-domain photo listings are available with author/source attribution and verified upstream checksums. The original six fictional listings still need suitable licensed photographs. Pexels and Wikimedia requests were denied by runtime policy; their domains are saved in the environment draft. Save the network additions in environment settings to resume licence verification and sourcing. No unrelated or unknown-licence photos were attached to existing records. No genuine uploads were replaced.
+**Photo sourcing is complete.** Six licensed Pexels illustrations now fill the original fictional listings' empty image fields. Full provenance and visual matching limitations are recorded in the photo manifest/attribution. A before/after database comparison verified exactly six image-field changes, unchanged donation IDs and other fields, unchanged requests, and identical bytes for every pre-existing upload. A second attachment run preserved all six existing images and made no updates. No genuine uploads were replaced.
 
 The final frontend and backend audits both report zero known vulnerabilities. Compatible patches alone left 109 legacy frontend entries; a focused Vite/Vitest migration removed the retired React Scripts/Jest tree without changing UI flows or removing assertions. All ten frontend tests, the build and nine browser scenarios passed afterward. Re-audit before launch; this is not a security guarantee.
 
 Final public-host browser/TLS checks, backup restoration, multi-instance/shared throttling, proxy configuration and production monitoring have not been tested because no public hosting has been approved. The current throttles use per-process memory; email verification, password recovery, MFA and tamper-proof external audit storage are not implemented. Passing tests do not guarantee security.
 
 See [testing](TESTING.md), [security design](SECURITY.md), [validation](VALIDATION.md), [deployment preparation](DEPLOYMENT.md) and [photo attribution](../backend/fixtures/photos/ATTRIBUTION.md). Public deployment, paid resources and disclosure of real credentials still require explicit approval.
+
+See [the deployment plan](DEPLOYMENT-PLAN.md) for the recommended single-server architecture, estimated costs, exact launch sequence and outstanding acceptance gates. No billing or public deployment was enabled.

@@ -39,7 +39,7 @@ These screenshots were captured from the actual running React application, Expre
 | --- | --- | --- |
 | [![Admin request oversight](docs/screenshots/admin-requests.png)](docs/screenshots/admin-requests.png) | [![Administrative audit events](docs/screenshots/admin-audit.png)](docs/screenshots/admin-audit.png) | [![Mobile admin overview](docs/screenshots/admin-mobile.png)](docs/screenshots/admin-mobile.png) · [Requester on mobile](docs/screenshots/requester-mobile.png) |
 
-[Capture manifest and image hashes](docs/screenshots/capture-manifest.json) · [Photograph licences and remaining source-access limitation](backend/fixtures/photos/ATTRIBUTION.md)
+[Capture manifest and image hashes](docs/screenshots/capture-manifest.json) · [Photograph licences and provenance](backend/fixtures/photos/ATTRIBUTION.md)
 
 ## Technology
 
@@ -105,12 +105,14 @@ npm test --prefix frontend
 npm run build --prefix frontend
 ```
 
-The latest run passed **17 backend tests, 10 frontend tests and nine real browser scenarios**, and the production build. Sixteen genuine screenshots are recorded in the capture manifest. See the [validation record](docs/VALIDATION.md) for evidence and limitations. Passing tests do not guarantee security.
+The latest run passed **18 backend tests, 10 frontend tests and nine real browser scenarios**, and the production build. Sixteen genuine screenshots are recorded in the capture manifest. See the [validation record](docs/VALIDATION.md) for evidence and limitations. Passing tests do not guarantee security.
 
 ## Hosting status and remaining work
 
 No public demo has been deployed and no public URL is advertised. Dockerfiles, a same-origin Nginx gateway, authenticated private MongoDB and persistent upload volumes are prepared and tested locally. Public deployment and paid resources require owner approval.
 
-Two photo listings use verified CC0/public-domain sources. The six older fictional listings are preserved and still need suitable licensed category photographs because the relevant photo hosts remain blocked in the current runtime. The necessary network additions are saved in the environment draft. Existing genuine uploads are never replaced by the photo seed.
+All eight fictional listings now have relevant licensed photographs: six Pexels photographs and two CC0/public-domain sources. Photos are representative illustrations; see the attribution record for visible contents and quantity/condition limitations. Donation IDs, descriptions, requests and genuine uploads were preserved. The gallery was recaptured from the running application.
 
 The recorded frontend and backend dependency audits report zero known vulnerabilities. Retired React Scripts/Jest tooling was replaced with Vite/Vitest while preserving the React UI and test assertions. A clean audit is not a security guarantee; provider configuration and abuse controls still need launch review. See [security notes](docs/SECURITY.md) and [deployment preparation](docs/DEPLOYMENT.md).
+
+For the proposed single-server hosting budget and approval-gated launch sequence, see [the deployment plan](docs/DEPLOYMENT-PLAN.md).

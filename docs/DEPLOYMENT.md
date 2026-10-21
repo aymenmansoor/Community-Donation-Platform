@@ -53,3 +53,7 @@ Local checks are not evidence of a public deployment or a new cloud-task restora
 The updated images were built and the authenticated Compose stack started locally. `scripts/production-smoke.cjs` exercised cookie sessions through a loopback HTTPS gateway with certificate verification enabled: database health, login, Secure/HttpOnly flags, session restoration, CSRF denial, donation creation/deletion and logout revocation passed. This is a Node HTTPS transport check, not a public-host browser validation. The development UI has separate real Chromium desktop/mobile coverage.
 
 The helper expects a private local certificate/key in `/workspace/.community-donation/tls` (or `LOCAL_TLS_DIR`) and a loopback Compose stack on 8080 with `PUBLIC_ORIGIN=https://localhost:8443`. Never commit the key or reuse this test certificate for public hosting. The client explicitly trusts the test certificate; it never disables TLS verification.
+
+## Recommended hosting and exact launch plan
+
+See [DEPLOYMENT-PLAN.md](DEPLOYMENT-PLAN.md) for a single 4 GB x86 VPS recommendation, an estimated €10–15/month budget plus tax, and the approval-gated launch sequence. Pricing is a planning estimate because provider pricing pages were blocked during review. The production gateway overlay, exact proxy trust configuration and encrypted backup/restore automation remain explicit implementation gates; the existing local Compose template must not be exposed unchanged.

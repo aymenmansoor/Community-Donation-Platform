@@ -8,7 +8,7 @@ npm test --prefix frontend
 npm run build --prefix frontend
 ```
 
-The backend runner uses a unique local `community_test_*` database and temporary upload directory, then removes only those resources. Its 17 tests exercise real MongoDB, authentication, expired/invalid JWTs, cookie restoration/revocation/CSRF, RBAC, ownership, suspension, admin provisioning/permissions, reversible moderation/audits, upload decoding and limits, injection rejection, throttling and production configuration. No tests are skipped.
+The backend runner uses a unique local `community_test_*` database and temporary upload directory, then removes only those resources. Its 18 tests exercise real MongoDB, authentication, expired/invalid JWTs, cookie restoration/revocation/CSRF, RBAC, ownership, suspension, admin provisioning/permissions, reversible moderation/audits, upload decoding and limits, injection rejection, throttling and production configuration. No tests are skipped.
 
 The ten frontend tests cover registration/login navigation, donor routes/forms, status changes, request histories, forged client roles, expired sessions, admin statistics/search/suspension, image previews and invalid image choices. The original test assertions now run with Vitest/jsdom. Vite/Vitest replaced the retired React Scripts/Jest dependency tree after compatible patches alone left 109 audit findings. React screens/API contracts remain unchanged; current React Router exports resolve natively. No assertions were removed or disabled.
 
@@ -19,9 +19,10 @@ Set private `MONGO_URI` and `DEMO_PASSWORD` (12–72 bytes) outside the checkout
 ```bash
 node --env-file=/absolute/private/backend.env --env-file=/absolute/private/demo.env backend/scripts/seed-demo.js
 node --env-file=/absolute/private/backend.env backend/scripts/seed-photos.js
+node --env-file=/absolute/private/backend.env backend/scripts/attach-demo-photos.js
 ```
 
-Three original fixture accounts are Mira Willow (`mira.donor@example.test`), Rowan Vale (`rowan.requester@example.test`) and Ellis Fern (`ellis.requester@example.test`). The original six listings and Pending/Approved/Rejected requests are preserved. Two additional fictional listings use correctly matched, verified CC0/public-domain photographs: a cup/saucer and a wall clock. Existing genuine uploads and populated image fields are never replaced. See [attribution](../backend/fixtures/photos/ATTRIBUTION.md) for the source-access limitation affecting the other categories.
+Three original fixture accounts are Mira Willow (`mira.donor@example.test`), Rowan Vale (`rowan.requester@example.test`) and Ellis Fern (`ellis.requester@example.test`). The original six listings and Pending/Approved/Rejected requests are preserved. Two additional fictional listings use correctly matched, verified CC0/public-domain photographs: a cup/saucer and a wall clock. Existing genuine uploads and populated image fields are never replaced. The six original items now have visually reviewed Pexels illustrations; see [attribution](../backend/fixtures/photos/ATTRIBUTION.md) for provenance and matching limitations.
 
 Both seeds require explicit `ALLOW_DEMO_SEED=true` for non-local databases; do not use that override on real data. Reruns preserve existing records/passwords. No real email or phone details are used, and nothing sends mail.
 
@@ -50,3 +51,7 @@ Sixteen genuine images and a SHA-256 capture manifest are saved under `docs/scre
 ## Production transport rehearsal
 
 See [deployment preparation](DEPLOYMENT.md) for the verified local TLS rehearsal. `scripts/production-smoke.cjs` tests the authenticated Compose configuration with a trusted local test certificate and leaves the key outside the checkout. The final public provider/domain, browser TLS configuration, abuse controls and backup recovery remain untested until approved hosting exists.
+
+## Portfolio photo verification — 21 October 2026
+
+18 backend tests passed against real MongoDB, including an isolated photo attachment test that preserves existing image bytes, IDs, donation metadata and request records; reruns are idempotent and ambiguous targets fail before writes. The live fixture before/after comparison found exactly six image-field changes and no other donation, request or prior upload-byte changes. Ten frontend tests, the production build and nine real Chromium scenarios passed. Sixteen screenshots were recaptured and their hashes refreshed. Both dependency audits reported zero known vulnerabilities. The build emitted non-failing React Router `use client` bundling warnings. No dependencies or UI flows changed in this follow-up.

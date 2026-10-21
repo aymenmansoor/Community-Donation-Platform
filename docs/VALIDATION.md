@@ -8,7 +8,7 @@ All application tests below used real local MongoDB; browser scenarios used the 
 | Stage 1 security | 9 backend tests passed before advancing |
 | Stage 2 authentication | 12 backend / 4 frontend tests passed before advancing |
 | Stage 3 administration | 15 backend / 6 frontend tests and production build passed |
-| Stage 4 branding/images | Frontend tests and build passed; two verified licensed photo listings added; remaining photo sourcing externally blocked |
+| Stage 4 branding/images | Frontend tests and build passed; two verified licensed photo listings added; six additional licensed, visually reviewed illustrations attached while preserving records |
 | Final backend suite | 17 passed; 0 failed, skipped or cancelled |
 | Final frontend suite | 10 passed across 3 suites; 0 failed or skipped |
 | Production frontend build | Passed under Vite; React Router use-client directive notices remain (this is a client-only SPA) |
@@ -22,7 +22,7 @@ All application tests below used real local MongoDB; browser scenarios used the 
 
 The end-to-end run caught and corrected credentialed CORS configuration. It also exposed test-helper timing/selector assumptions, which were corrected before the final passing run. A failed attempt was not counted as a pass.
 
-Photograph completion remains partial: the original six fictional listings were preserved, two verified licensed photographs were added for matching new fictional records, and other categories still require source access. Pexels/Wikimedia domains are saved in the environment draft, but the runtime requests returned proxy denials. No unknown-licence or unrelated photographs were substituted. Genuine uploads were retained.
+Photograph sourcing is complete: six Pexels illustrations fill previously empty fictional listing image fields. Source/derivative checksums and visual matching limitations are documented. Before/after comparison verified all other donation fields, requests and pre-existing upload bytes were unchanged; the second attachment run made no changes.
 
 Compatible patches initially left 109 frontend audit entries. A subsequent focused migration to Vite/Vitest removed the retired build/test tree while preserving React screens, API behavior and all ten frontend test assertions. Tests, production build and nine real browser scenarios were rerun and passed with the new tooling. The final audit is clean, but that does not establish complete application security.
 
