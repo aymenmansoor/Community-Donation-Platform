@@ -128,6 +128,13 @@ test('registration duplicates have the same response and suspension invalidates 
   const denied = await call('/api/auth/login', { method: 'POST', body });
   assert.equal(denied.status, 401); assert.equal(denied.data.message, 'Invalid email or password');
   await require('../models/User').updateOne({ _id: donor.user.id }, { status: 'active' });
+  const users = require('../models/User').collection;
+  await users.updateOne({ _id: new mongoose.Types.ObjectId(donor.user.id) }, { $set: { email: donor.user.email.toUpperCase() } });
+  try {
+    assert.equal((await call('/api/auth/login', { method: 'POST', body })).status, 200);
+    assert.equal((await call('/api/auth/signup', { method: 'POST', body })).status, 201);
+    assert.equal(await users.countDocuments({}), 3);
+  } finally { await users.updateOne({ _id: new mongoose.Types.ObjectId(donor.user.id) }, { $set: { email: donor.user.email } }); }
 });
 let admin;
 test('initial admin provisioning is explicit and ordinary sessions cannot access administration', async () => {

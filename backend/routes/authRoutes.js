@@ -16,7 +16,7 @@ router.post('/signup', async (req, res) => {
   const normalizedEmail = email.trim().toLowerCase();
   const hashed = await bcrypt.hash(password, 12);
   try {
-    if (!await User.exists({ email: normalizedEmail })) {
+    if (!await User.exists({ email: normalizedEmail }).collation({ locale: 'en', strength: 2 })) {
       const user = await User.create({ fullName: fullName.trim(), email: normalizedEmail, password: hashed, role });
       await audit(req, 'account.register', user._id);
     }
@@ -26,7 +26,7 @@ router.post('/signup', async (req, res) => {
 });
 router.post('/login', async (req, res) => {
   if (!emailValid(req.body.email) || typeof req.body.password !== 'string' || Buffer.byteLength(req.body.password) > 72) return res.status(401).json({ message: 'Invalid email or password' });
-  const user = await User.findOne({ email: req.body.email.trim().toLowerCase() });
+  const user = await User.findOne({ email: req.body.email.trim().toLowerCase() }).collation({ locale: 'en', strength: 2 });
   const valid = await bcrypt.compare(req.body.password, user && user.status !== 'suspended' ? user.password : dummyHash);
   if (!valid || !user || user.status === 'suspended') {
     await audit(req, 'login.failed', '', 'denied'); return res.status(401).json({ message: 'Invalid email or password' });

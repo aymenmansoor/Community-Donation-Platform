@@ -10,7 +10,7 @@ async function main() {
   await mongoose.connect(MONGO_URI);
   await User.init();
   if (await User.exists({ role: 'Admin' })) throw new Error('An admin already exists; no account changed');
-  if (await User.exists({ email: ADMIN_EMAIL.trim().toLowerCase() })) throw new Error('Email already in use; ordinary accounts are never promoted by this tool');
+  if (await User.exists({ email: ADMIN_EMAIL.trim().toLowerCase() }).collation({ locale: 'en', strength: 2 })) throw new Error('Email already in use; ordinary accounts are never promoted by this tool');
   const user = await User.create({ fullName: ADMIN_NAME.trim(), email: ADMIN_EMAIL.trim().toLowerCase(), password: await bcrypt.hash(ADMIN_PASSWORD, 12), role: 'Admin' });
   await AuditEvent.create({ actor: user._id, action: 'admin.provision', target: String(user._id) });
   console.log('Initial administrator provisioned. No credentials printed.');
