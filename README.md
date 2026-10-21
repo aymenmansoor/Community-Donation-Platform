@@ -106,8 +106,6 @@ All 16 screenshots are genuine captures of the running application with fictiona
 
 </details>
 
-[Capture manifest](docs/screenshots/capture-manifest.json) · [Photograph credits and licences](backend/fixtures/photos/ATTRIBUTION.md)
-
 ## Technology stack
 
 - **Frontend:** React 19, React Router 7, Bootstrap 5, Axios and Vite.
